@@ -6,6 +6,30 @@
 initCol(COL) :- assert(col(COL,[0,0,0,0,0,0])).
 initGame :- initCol(1), initCol(2), initCol(3), initCol(4), initCol(5), initCol(6), initCol(7).
 
+
+% afficher le jeu
+
+printColElement(COL, LINE) :- col(COL,X), nth0(LINE,X,Val), Val==0, write('-').
+printColElement(COL, LINE) :- col(COL,X), nth0(LINE,X,Val), Val\==0, write(Val).
+printLine(LINE) :- printColElement(1, LINE),
+                   printColElement(2, LINE),
+                   printColElement(3, LINE),
+                   printColElement(4, LINE),
+                   printColElement(5, LINE),
+                   printColElement(6, LINE),
+                   printColElement(7, LINE).
+
+displayGame :-  writeln('       '),
+                writeln('1234567'),
+                writeln('       '),
+                printLine(0), writeln(''),
+                printLine(1), writeln(''),
+                printLine(2), writeln(''),
+                printLine(3), writeln(''),
+                printLine(4), writeln(''),
+                printLine(5), writeln(''),
+                writeln('       ').
+
 % jouer un coup en précisant la colonne et le joueur
 
 replaceWhenZeroFound([A|Y], P, R, R2) :- A==0, append(R,[P],R1), append(R1,Y,R2).
