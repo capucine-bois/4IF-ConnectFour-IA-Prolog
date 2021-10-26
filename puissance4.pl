@@ -1,18 +1,18 @@
-%cd('C:/Users/Rami EL RIFAI/Desktop/INSA Lyon/4IF/ALIA/Jeu/IA-puissance-4').
-
-col(1,[1,2,1,1,1,1]).
-col(2,[0,0,0,1,2,1]).
-col(3,[0,0,0,0,1,1]).
-col(4,[0,0,0,0,0,1]).
-col(5,[0,0,0,0,0,0]).
-col(6,[0,0,0,0,0,0]).
-col(7,[0,0,0,0,0,0]).
-
 :- dynamic col/1.
-
 
 % COL correspond à la colonne qui vient d etre jouée
 % P correspond au joueur
+
+initCol(COL) :- assert(col(COL,[0,0,0,0,0,0])).
+initGame :- initCol(1), initCol(2), initCol(3), initCol(4), initCol(5), initCol(6), initCol(7).
+
+% jouer un coup en précisant la colonne et le joueur
+
+replaceWhenZeroFound([A|Y], P, R, R2) :- A==0, append(R,[P],R1), append(R1,Y,R2).
+replaceWhenZeroFound([A|Y], P, R, R2) :- A\==0, append(R,[A],R1), replaceWhenZeroFound(Y, P, R1, R2).
+addPlayerCoin(X,P,R) :- reverse(X,Y), replaceWhenZeroFound(Y,P,[],R1), reverse(R1,R).
+playInCol(COL, P) :- not(isColFull(COL)), col(COL,X), addPlayerCoin(X,P,Y), retract(col(COL,X)), assert(col(COL,Y)).
+
 
 % gagner avec une colonne, tous les cas possibles :
 % en 3 fois
@@ -94,4 +94,5 @@ noZeroFound([A|X]) :- A\==0, noZeroFound(X).
 isColFull(COL) :- col(COL,X), noZeroFound(X).
 
 % vérifier si le jeu est totalement rempli
-isGameFull() :- isColFull(1), isColFull(2), isColFull(3), isColFull(4), isColFull(5), isColFull(6), isColFull(7).
+
+isGameFull :- isColFull(1), isColFull(2), isColFull(3), isColFull(4), isColFull(5), isColFull(6), isColFull(7).
