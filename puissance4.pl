@@ -110,23 +110,25 @@ isGameFull :- isColFull(1), isColFull(2), isColFull(3), isColFull(4), isColFull(
 
 % faire un coup pour un joueur
 
+% Partie joueur humain
+
 play(P,C) :- (C==1;(C==2, P==1)), displayGame,
            write('Le joueur '), write(P), writeln(' doit jouer.'),
            write('Colonne choisie : '), read(COL),
            chooseCol(COL, P,C ).
-% Partie IA        
+
+% Partie IA
+
 play(P, C) :- ((C==2, P==2); C==3), displayGame,
            write('L\' IA '), write(P), writeln(' doit jouer.'),
-           write('Colonne choisie : '), ia(P, _, C).
+           write('Colonne choisie : '), ia(P, C).
 
 
-chooseCol(COL,P, C) :-((C==2, P==2); C==3), (not(isCol(COL)); isColFull(COL)), writeln('Impossible de jouer sur cette colonne.'), write('Colonne choisie : '), ia(P, _, C).
-% Partie joueur humain
 chooseCol(COL,P, C) :- isCol(COL), not(isColFull(COL)), playInCol(COL,P), continueGame(COL, P, C).
-chooseCol(COL,P, C) :- (C==1;(C==2, P==1)), (not(isCol(COL)); isColFull(COL)), writeln('Impossible de jouer sur cette colonne.'), write('Colonne choisie : '), read(COL1), chooseCol(COL1, P).
+chooseCol(COL,P, C) :- (not(isCol(COL)); isColFull(COL)), writeln('Impossible de jouer sur cette colonne.'), write('Colonne choisie : '), read(COL1), chooseCol(COL1, P, C).
 
-
-ia(P, ChosenCol, C) :- repeat, ChosenCol is random(7),  writeln(ChosenCol), chooseCol(ChosenCol, P, C), !.
+ia(P, C) :- ChosenCol is random(7) + 1,  isColFull(ChosenCol), ia(P, C).
+ia(P, C) :- ChosenCol is random(7) + 1,  not(isColFull(ChosenCol)), writeln(ChosenCol), playInCol(ChosenCol, P), continueGame(ChosenCol, P, C).
 
 continueGame(_,_,_) :- isGameFull, displayGame, writeln('Pas de vainqueur.'), resetGame.
 continueGame(COL,P,_) :- not(isGameFull), winner(COL,P), displayGame, write('Le joueur '), write(P), writeln(' a gagné'), resetGame.
@@ -137,9 +139,13 @@ resetCol(COL) :- col(COL,X), retract(col(COL,X)).
 resetGame :- resetCol(1), resetCol(2), resetCol(3), resetCol(4), resetCol(5), resetCol(6), resetCol(7).
 
 
- 
 
 % lancer la partie
 
 playGame :- initGame, choix(C), play(1,C).
-choix(C) :- writeln('CHOIX 1 : 2 joueurs humains ?'),  writeln('CHOIX 2 : 1 joueur humain contre une IA ?'),writeln('CHOIX 3 : 2 IA ?'), writeln('Tapez votre choix : '), read(C).
+choix(C) :- writeln('CHOIX 1 : 2 joueurs humains ?'),
+            writeln('CHOIX 2 : 1 joueur humain contre une IA ?'),
+            writeln('CHOIX 3 : 2 IA ?'),
+            write('Tapez votre choix : '), read(Num), checkMode(Num, C).
+checkMode(Num, C) :- ((Num == 1 ; Num == 2 ; Num == 3), C = Num);
+                     (writeln("Vous devez choisir entres les choix 1, 2 ou 3."), write('Tapez votre choix : '), read(Num1), checkMode(Num1, C)).
