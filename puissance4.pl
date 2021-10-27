@@ -110,22 +110,36 @@ isGameFull :- isColFull(1), isColFull(2), isColFull(3), isColFull(4), isColFull(
 
 % faire un coup pour un joueur
 
-play(P) :- displayGame,
+play(P,C) :- (C==1;(C==2, P==1)), displayGame,
            write('Le joueur '), write(P), writeln(' doit jouer.'),
            write('Colonne choisie : '), read(COL),
-           chooseCol(COL, P).
+           chooseCol(COL, P,C ).
+% Partie IA        
+play(P, C) :- ((C==2, P==2); C==3), displayGame,
+           write('L\' IA '), write(P), writeln(' doit jouer.'),
+           write('Colonne choisie : '), ia(P, _, C).
 
-chooseCol(COL,P) :- isCol(COL), not(isColFull(COL)), playInCol(COL,P), continueGame(COL, P).
-chooseCol(COL,P) :- (not(isCol(COL)); isColFull(COL)), writeln('Impossible de jouer sur cette colonne.'), write('Colonne choisie : '), read(COL1), chooseCol(COL1, P).
 
-continueGame(_,_) :- isGameFull, displayGame, writeln('Pas de vainqueur.'), resetGame.
-continueGame(COL,P) :- not(isGameFull), winner(COL,P), displayGame, write('Le joueur '), write(P), writeln(' a gagné'), resetGame.
-continueGame(COL,P) :- not(isGameFull), not(winner(COL,P)), changePlayer(P,P1), play(P1).
+chooseCol(COL,P, C) :-((C==2, P==2); C==3), (not(isCol(COL)); isColFull(COL)), writeln('Impossible de jouer sur cette colonne.'), write('Colonne choisie : '), ia(P, _, C).
+% Partie joueur humain
+chooseCol(COL,P, C) :- isCol(COL), not(isColFull(COL)), playInCol(COL,P), continueGame(COL, P, C).
+chooseCol(COL,P, C) :- (C==1;(C==2, P==1)), (not(isCol(COL)); isColFull(COL)), writeln('Impossible de jouer sur cette colonne.'), write('Colonne choisie : '), read(COL1), chooseCol(COL1, P).
+
+
+ia(P, ChosenCol, C) :- repeat, ChosenCol is random(7),  writeln(ChosenCol), chooseCol(ChosenCol, P, C), !.
+
+continueGame(_,_,_) :- isGameFull, displayGame, writeln('Pas de vainqueur.'), resetGame.
+continueGame(COL,P,_) :- not(isGameFull), winner(COL,P), displayGame, write('Le joueur '), write(P), writeln(' a gagné'), resetGame.
+continueGame(COL,P,C) :- not(isGameFull), not(winner(COL,P)), changePlayer(P,P1), play(P1,C).
 changePlayer(P,P1) :- P==1, P1 = 2.
 changePlayer(P,P1) :- P==2, P1 = 1.
 resetCol(COL) :- col(COL,X), retract(col(COL,X)).
 resetGame :- resetCol(1), resetCol(2), resetCol(3), resetCol(4), resetCol(5), resetCol(6), resetCol(7).
 
+
+ 
+
 % lancer la partie
 
-playGame :- initGame, play(1).
+playGame :- initGame, choix(C), play(1,C).
+choix(C) :- writeln('CHOIX 1 : 2 joueurs humains ?'),  writeln('CHOIX 2 : 1 joueur humain contre une IA ?'),writeln('CHOIX 3 : 2 IA ?'), writeln('Tapez votre choix : '), read(C).
