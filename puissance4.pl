@@ -82,14 +82,14 @@ winner(COL,P) :- P\== 0, (
 % gagner avec une diagonale :
 
 winner(COL,P) :- P\==0, (
-                (COL1 is COL+1, COL2 is COL+2, COL3 is COL+3);
-                (COL1 is COL-1, COL2 is COL+1, COL3 is COL+2);
-                (COL1 is COL-2, COL2 is COL-1, COL3 is COL+1);
-                (COL1 is COL-3, COL2 is COL-2, COL3 is COL-1)),
-                col(COL,W),  W = [A1,A2,A3,A4,A5,A6],
-                col(COL1,X), X = [_,B2,B3,B4,B5,_],
-                col(COL2,Y), Y = [_,C2,C3,C4,C5,_],
-                col(COL3,Z), Z = [D1,D2,D3,D4,D5,D6], (
+                (COL1 is COL, COL2 is COL+1, COL3 is COL+2, COL4 is COL+3);
+                (COL1 is COL-1, COL2 is COL, COL3 is COL+1, COL4 is COL+2);
+                (COL1 is COL-2, COL2 is COL-1, COL3 is COL, COL4 is COL+1);
+                (COL1 is COL-3, COL2 is COL-2, COL3 is COL-1, COL4 is COL)),
+                col(COL1,W),  W = [A1,A2,A3,A4,A5,A6],
+                col(COL2,X), X = [_,B2,B3,B4,B5,_],
+                col(COL3,Y), Y = [_,C2,C3,C4,C5,_],
+                col(COL4,Z), Z = [D1,D2,D3,D4,D5,D6], (
                 (P==A1, A1==B2, B2==C3, C3==D4);
                 (P==A2, A2==B3, B3==C4, C4==D5);
                 (P==A3, A3==B4, B4==C5, C5==D6);
