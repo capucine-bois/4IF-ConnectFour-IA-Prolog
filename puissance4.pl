@@ -17,8 +17,8 @@ initGame :- initCol(1), initCol(2), initCol(3), initCol(4), initCol(5), initCol(
 
 % afficher le jeu
 
-printColElement(COL, LINE) :- col(COL,X), nth0(LINE,X,Val), Val==0, write('-').
-printColElement(COL, LINE) :- col(COL,X), nth0(LINE,X,Val), Val\==0, write(Val).
+printColElement(COL, LINE) :- col(COL,X), nth0(LINE,X,Val), Val==0, write(' - ').
+printColElement(COL, LINE) :- col(COL,X), nth0(LINE,X,Val), Val\==0, write(' '), write(Val), write(' ').
 printLine(LINE) :- printColElement(1, LINE),
                    printColElement(2, LINE),
                    printColElement(3, LINE),
@@ -27,16 +27,17 @@ printLine(LINE) :- printColElement(1, LINE),
                    printColElement(6, LINE),
                    printColElement(7, LINE).
 
-displayGame :-  writeln('       '),
-                writeln('1234567'),
-                writeln('       '),
+displayGame :-  writeln('                     '),
+                writeln(' 1  2  3  4  5  6  7 '),
+                writeln('---------------------'),
                 printLine(0), writeln(''),
                 printLine(1), writeln(''),
                 printLine(2), writeln(''),
                 printLine(3), writeln(''),
                 printLine(4), writeln(''),
                 printLine(5), writeln(''),
-                writeln('       ').
+                writeln('---------------------'),
+                writeln('                     ').
 
 % jouer un coup en précisant la colonne et le joueur
 
