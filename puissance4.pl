@@ -129,7 +129,7 @@ play(P, C) :- ((C==2, P==2); C==3), displayGame,
 chooseCol(COL,P, C) :- isCol(COL), not(isColFull(COL)), playInCol(COL,P), continueGame(COL, P, C).
 chooseCol(COL,P, C) :- (not(isCol(COL)); isColFull(COL)), writeln('Impossible de jouer sur cette colonne.'), write('Colonne choisie : '), read(COL1), chooseCol(COL1, P, C).
 
-ia(P, C) :- minimax(3, P, P, _, BestCol), playInCol(BestCol, P), continueGame(BestCol, P, C).
+ia(P, C) :- minimax(3, P, P, _, BestCol), writeln(BestCol), playInCol(BestCol, P), continueGame(BestCol, P, C).
 
 
 continueGame(_,_,_) :- isGameFull, displayGame, writeln('Pas de vainqueur.'), resetGame.
@@ -165,14 +165,14 @@ getGameBoard(GB):-  col(1,A),
 
 % algorithme minimax de profondeur limitée
 
-%on donne le score de 0 si le jeu est plein ou que la profondeur de l arbre est de zéro
-minimax(DEPTH, _, _, SCORE, _) :- (DEPTH==0;isGameFull), SCORE=0, !.
-
 %si le joueur actuel gagne à la prochaine itération on donne un score de 10
 minimax(_, Pmax, _, SCORE, _) :- checkWinning(Pmax), SCORE=10, !.
 
 %si le joueur adversaire gagne à la prochaine itération on donne un score de -10
 minimax(_, Pmax, _, SCORE, _) :- changePlayer(Pmax,P1), checkWinning(P1), SCORE=(-10), !.
+
+%on donne le score de 0 si le jeu est plein ou que la profondeur de l arbre est de zéro
+minimax(DEPTH, _, _, SCORE, _) :- (DEPTH==0;isGameFull), SCORE=0, !.
 
 minimax(DEPTH, Pmax, P, SCORE, BestCol) :-
                               maximizingPlayer(Pmax, P),
@@ -222,4 +222,4 @@ forEachChildIfMin(COL, [_|GB], DEPTH, Pmax, P, SCORE, SCOREfinal, BestCol, BestC
                     COL1 is COL+1, isColFull(COL1),
                     forEachChildIfMin(COL1, GB, DEPTH, Pmax, P, SCORE, SCOREfinal, BestCol, BestColFinal).
 
-checkWinning(P) :- winner(1,P), winner(2,P), winner(3,P), winner(4,P), winner(5,P), winner(6,P), winner(7,P).
+checkWinning(P) :- winner(1,P); winner(2,P); winner(3,P); winner(4,P); winner(5,P); winner(6,P); winner(7,P).
