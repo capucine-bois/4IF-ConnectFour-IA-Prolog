@@ -45,6 +45,10 @@ replaceWhenZeroFound([A|Y], P, R, R2) :- A\==0, append(R,[A],R1), replaceWhenZer
 addPlayerCoin(X,P,R) :- reverse(X,Y), replaceWhenZeroFound(Y,P,[],R1), reverse(R1,R).
 playInCol(COL, P) :- col(COL,X), addPlayerCoin(X,P,Y), retract(col(COL,X)), assert(col(COL,Y)).
 
+replaceFirstNotZero([A|Y], R, R2) :- A\==0, append(R,[0],R1), append(R1,Y,R2).
+replaceFirstNotZero([A|Y], R, R2) :- A==0, append(R,[A],R1), replaceFirstNotZero(Y, R1, R2).
+removePlayerCoin(X,R) :- replaceFirstNotZero(X,[],R).
+cancelPlayInCol(COL) :- col(COL,X), removePlayerCoin(X,Y), retract(col(COL,X)), assert(col(COL,Y)).
 
 % gagner avec une colonne :
 
@@ -53,8 +57,6 @@ winner(COL,P) :- col(COL,X), X = [A,B,C,D,E,F], (
                  (P==B, B==C, C==D, D==E, B\==0);
                  (P==C, C==D, D==E, E==F, C\==0)
                  ).
-
-
 
 
 % gagner avec une ligne :
@@ -127,11 +129,7 @@ play(P, C) :- ((C==2, P==2); C==3), displayGame,
 chooseCol(COL,P, C) :- isCol(COL), not(isColFull(COL)), playInCol(COL,P), continueGame(COL, P, C).
 chooseCol(COL,P, C) :- (not(isCol(COL)); isColFull(COL)), writeln('Impossible de jouer sur cette colonne.'), write('Colonne choisie : '), read(COL1), chooseCol(COL1, P, C).
 
-ia(P, C) :- getGameBoard(GB), iterateMiniMax(1, GB,P, -inf,1, C).
-iterateMiniMax(NUMCOL, _,P, _, NUMIT, C):- NUMIT==8, writeln(NUMCOL), playInCol(ChosenCol, P), continueGame(ChosenCol, P, C).
-% à revoir cf note de fin pour inserto
-iterateMiniMax(NUMCOL, GB,P, BESTSCORE, NUMIT, C):- NUMIT<8, inserto(P,GB,CHILD,NUMIT), NUMIT<8, minimax(GB, P, 3, -inf, inf, 1, SCORE), changeCol(CHILD, P, NUMCOL, SCORE, BESTSCORE, C, NUMIT). 
-
+ia(P, C) :- minimax(3, P, P, _, BestCol), playInCol(BestCol, P), continueGame(BestCol, P, C).
 
 % si score>bestscore, on a trouvé une meilleure configuration en jouant sur la colonne NUMCOL, on continue d'itérer en sauvegardant ce numéro de colonne qui est le meilleur jusqu'à présent
 changeCol(GB, P, _, SCORE, BESTSCORE, C,NUMIT) :- SCORE>BESTSCORE, NUMIT1 is NUMIT+1, NUMCOL1 is NUMIT, iterateMiniMax(NUMCOL1, GB, P, BESTSCORE, NUMIT1, C).
@@ -144,7 +142,7 @@ continueGame(COL,P,C) :- not(isGameFull), not(winner(COL,P)), changePlayer(P,P1)
 changePlayer(P,P1) :- P==1, P1 = 2.
 changePlayer(P,P1) :- P==2, P1 = 1.
 resetCol(COL) :- col(COL,X), retract(col(COL,X)).
-resetGame :-getGameBoard(GB), writeln(GB), resetCol(1), resetCol(2), resetCol(3), resetCol(4), resetCol(5), resetCol(6), resetCol(7).
+resetGame :- resetCol(1), resetCol(2), resetCol(3), resetCol(4), resetCol(5), resetCol(6), resetCol(7).
 
 
 
@@ -159,68 +157,73 @@ checkMode(Num, C) :- ((Num == 1 ; Num == 2 ; Num == 3), C = Num);
                      (writeln("Vous devez choisir entres les choix 1, 2 ou 3."), write('Tapez votre choix : '), read(Num1), checkMode(Num1, C)).
 
 
-getGameBoard(GB):-  col(1,A), 
-                    col(2,B), 
-                    col(3,C), 
-                    col(4,D), 
-                    col(5,E), 
-                    col(6,F), 
-                    col(7,G), 
+getGameBoard(GB):-  col(1,A),
+                    col(2,B),
+                    col(3,C),
+                    col(4,D),
+                    col(5,E),
+                    col(6,F),
+                    col(7,G),
                     GB=[A,B,C,D,E,F,G].
 
 
-%on donne le score de 0 si le jeu est plein ou que la profondeur de l'arbre est de zéro
-minimax(_, _, DEPTH, _, _, _, SCORE) :- (DEPTH==0;isGameFull), SCORE=0.
+% algorithme minimax de profondeur limitée
+
+%on donne le score de 0 si le jeu est plein ou que la profondeur de l arbre est de zéro
+minimax(DEPTH, _, _, SCORE, _) :- (DEPTH==0;isGameFull), SCORE=0, !.
+
 %si le joueur actuel gagne à la prochaine itération on donne un score de 10
-minimax(_, P, _, _, _, _, SCORE) :- checkWinning(P), SCORE=10.
+minimax(_, Pmax, _, SCORE, _) :- checkWinning(Pmax), SCORE=10, !.
 
 %si le joueur adversaire gagne à la prochaine itération on donne un score de -10
-minimax(_, P, _, _, _, _, SCORE) :-changePlayer(P,P1), checkWinning(P1), SCORE=(-10).
+minimax(_, Pmax, _, SCORE, _) :- changePlayer(Pmax,P1), checkWinning(P1), SCORE=(-10), !.
 
-% MAXIMIZING = 1 quand sur la profondeur actuelle il faudrait maximiser
-minimax(GB, P, DEPTH, ALPHA, BETA, MAXIMIZING, SCORE, INDEX):- nonvar(INDEX), MAXIMIZING==1, forEachChild(GB, P, DEPTH, ALPHA, BETA, MAXIMIZING, SCORE, 1).
-minimax(GB, P, DEPTH, ALPHA, BETA, MAXIMIZING, SCORE, INDEX):- MAXIMIZING==1, forEachChild(GB, P, DEPTH, ALPHA, BETA, MAXIMIZING, SCORE, INDEX).
+minimax(DEPTH, Pmax, P, SCORE, BestCol) :-
+                              maximizingPlayer(Pmax, P),
+                              SCOREinit = -inf,
+                              getGameBoard(GB),
+                              forEachChildIfMax(0, GB, DEPTH, Pmax, P, SCOREinit, SCOREfinal, 1, BestColFinal),
+                              SCORE = SCOREfinal,
+                              BestCol = BestColFinal.
 
-% MAXIMIZING = 0 quand sur la profondeur actuelle il faudrait minimiser
-minimax(GB, P, DEPTH, ALPHA, BETA, MAXIMIZING, SCORE, INDEX):- nonvar(INDEX), MAXIMIZING==0, forEachChild(GB, P, DEPTH, ALPHA, BETA, MAXIMIZING, SCORE, 1).
-minimax(GB, P, DEPTH, ALPHA, BETA, MAXIMIZING, SCORE, INDEX):- MAXIMIZING==0, forEachChild(GB, P, DEPTH, ALPHA, BETA, MAXIMIZING, SCORE, INDEX).
+minimax(DEPTH, Pmax, P, SCORE, BestCol) :-
+                              not(maximizingPlayer(Pmax, P)),
+                              SCOREinit = inf,
+                              getGameBoard(GB),
+                              forEachChildIfMin(0, GB, DEPTH, Pmax, P, SCOREinit, SCOREfinal, 1, BestColFinal),
+                              SCORE = SCOREfinal,
+                              BestCol = BestColFinal.
 
-forEachChild(GB, P, DEPTH, ALPHA, BETA, MAXIMIZING, SCORE, INDEX) :-    INDEX<8, findChild(GB, CHILD, INDEX, P),
-                                                                        INDEX1 = INDEX+1,
-                                                                        forOneChild(CHILD, P, DEPTH, ALPHA, BETA, MAXIMIZING, SCORE, INDEX1).
+% Pmax : le joueur qu on veut maximiser
+% P : le joueur qui doit jouer
+maximizingPlayer(Pmax, P) :- P==Pmax.
 
+forEachChildIfMax(_, [], _, _, _, SCORE, SCOREfinal, BestCol, BestColFinal) :- SCOREfinal = SCORE, BestColFinal = BestCol.
+forEachChildIfMax(COL, [_|GB], DEPTH, Pmax, P, SCORE, SCOREfinal, BestCol, BestColFinal) :-
+                    COL1 is COL+1, not(isColFull(COL1)),
+                    playInCol(COL1, P),
+                    changePlayer(P,P1),
+                    DEPTHnext is DEPTH-1, minimax(DEPTHnext, Pmax, P1, SCOREtmp, _),
+                    cancelPlayInCol(COL1),
+                    ((SCOREtmp < SCORE, SCOREnext = SCORE, BestColNext = BestCol); SCOREnext = SCOREtmp, BestColNext = COL1),
+                    forEachChildIfMax(COL1, GB, DEPTH, Pmax, P, SCOREnext, SCOREfinal, BestColNext, BestColFinal).
 
-forOneChild(GB, P, DEPTH, ALPHA, BETA, MAXIMIZING, SCORE, INDEX) :-     BETA>ALPHA, 
-                                                                        MAXIMIZING==1,
-                                                                        DEPTH1 is DEPTH-1,
-                                                                        changeMaximizing(MAXIMIZING,M2),
-                                                                        minimax(GB, P, DEPTH1, ALPHA, BETA, M2, SCORE1, INDEX), 
-                                                                        SCORE is max(SCORE,SCORE1),
-                                                                        ALPHA is max(ALPHA,SCORE1).
+forEachChildIfMax(COL, [_|GB], DEPTH, Pmax, P, SCORE, SCOREfinal, BestCol, BestColFinal) :-
+                    COL1 is COL+1, isColFull(COL1),
+                    forEachChildIfMax(COL1, GB, DEPTH, Pmax, P, SCORE, SCOREfinal, BestCol, BestColFinal).
 
+ forEachChildIfMin(_, [], _, _, _, SCORE, SCOREfinal,BestCol, BestColFinal) :- SCOREfinal = SCORE, BestColFinal = BestCol.
+ forEachChildIfMin(COL, [_|GB], DEPTH, Pmax, P, SCORE, SCOREfinal, BestCol, BestColFinal) :-
+                    COL1 is COL+1, not(isColFull(COL1)),
+                    playInCol(COL1, P),
+                    changePlayer(P,P1),
+                    DEPTHnext is DEPTH-1, minimax(DEPTHnext, Pmax, P1, SCOREtmp, _),
+                    cancelPlayInCol(COL1),
+                    ((SCOREtmp > SCORE, SCOREnext = SCORE, BestColNext = BestCol); SCOREnext = SCOREtmp, BestColNext = COL1),
+                    forEachChildIfMin(COL1, GB, DEPTH, Pmax, P, SCOREnext, SCOREfinal, BestColNext, BestColFinal).
 
-forOneChild(GB, P, DEPTH, ALPHA, BETA, MAXIMIZING, SCORE, INDEX) :-     BETA>ALPHA, 
-                                                                        MAXIMIZING==0,
-                                                                        DEPTH1 is DEPTH-1,
-                                                                        changeMaximizing(MAXIMIZING,M2),
-                                                                        minimax(GB, P, DEPTH1, ALPHA, BETA, M2, SCORE1, INDEX), 
-                                                                        SCORE is min(SCORE,SCORE1),
-                                                                        BETA is min(BETA,SCORE1).
-
-changeMaximizing(M,M2) :- M==1, M2 = 0.
-changeMaximizing(M,M2) :- M==0, M2 = 1.
-
-findChild(GB, CHILD, INDEX, P) :- inserto(P,GB,CHILD,INDEX). % à revoir, cf note de fin pour inserto
+forEachChildIfMin(COL, [_|GB], DEPTH, Pmax, P, SCORE, SCOREfinal, BestCol, BestColFinal) :-
+                    COL1 is COL+1, isColFull(COL1),
+                    forEachChildIfMin(COL1, GB, DEPTH, Pmax, P, SCORE, SCOREfinal, BestCol, BestColFinal).
 
 checkWinning(P) :- winner(1,P), winner(2,P), winner(3,P), winner(4,P), winner(5,P), winner(6,P), winner(7,P).
-
-
-insert2D(Elem,NC,NL,List) :- 
-                    inserto(Elem,List,NvList,NC,NL),
-                    
-inserto(_,[],[],_).
-inserto(E,[_|Xs],[E|Ys],1) :- inserto(E,Xs,Ys,0),!.
-inserto(E,[X|Xs],[X|Ys],N) :- N1 is N-1, inserto(E,Xs,Ys,N1).
-
-%inserto à ne pas utiliser, utiliser insert2D à la place et trouver NL telle que [colonne NC, ligne NL] = [NUMIT (cf plus haut), derniere ligne qui n'a pas été jouéee (càd '-')] 
-%cf https://stackoverflow.com/questions/35069340/insert-element-into-a-2d-list-in-prolog
