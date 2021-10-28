@@ -131,10 +131,6 @@ chooseCol(COL,P, C) :- (not(isCol(COL)); isColFull(COL)), writeln('Impossible de
 
 ia(P, C) :- minimax(3, P, P, _, BestCol), playInCol(BestCol, P), continueGame(BestCol, P, C).
 
-% si score>bestscore, on a trouvé une meilleure configuration en jouant sur la colonne NUMCOL, on continue d'itérer en sauvegardant ce numéro de colonne qui est le meilleur jusqu'à présent
-changeCol(GB, P, _, SCORE, BESTSCORE, C,NUMIT) :- SCORE>BESTSCORE, NUMIT1 is NUMIT+1, NUMCOL1 is NUMIT, iterateMiniMax(NUMCOL1, GB, P, BESTSCORE, NUMIT1, C).
-changeCol(GB, P, NUMCOL, SCORE, BESTSCORE, C, NUMIT) :- SCORE=<BESTSCORE, NUMIT1 is NUMIT+1, iterateMiniMax(NUMCOL, GB, P, BESTSCORE, NUMIT1, C).
-
 
 continueGame(_,_,_) :- isGameFull, displayGame, writeln('Pas de vainqueur.'), resetGame.
 continueGame(COL,P,_) :- not(isGameFull), winner(COL,P), displayGame, write('Le joueur '), write(P), writeln(' a gagné'), resetGame.
