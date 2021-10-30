@@ -3,9 +3,9 @@
 * Lancer SWI-Prolog
 * Charger le fichier `puissance4.pl` avec la commande :
 ```
-[puissance4].
+consult([puissance4,negamax]).
 ```
 * Lancer une partie avec la commande :
 ```
-playGame.
+puissance4:playGame.
 ```
