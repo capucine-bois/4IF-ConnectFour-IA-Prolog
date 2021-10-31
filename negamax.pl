@@ -6,16 +6,16 @@
 
 % algorithme minimax de profondeur limitée avec simplification negamax
 
-negamax(_, Pmax, _, SCORE, _) :- checkWinning(Pmax), trace, SCORE=150, notrace, !.
+negamax(DEPTH, Pmax, P, SCORE, _) :- checkWinning(Pmax), SCOREtmp is 1000*DEPTH, ((Pmax==P,SCORE=SCOREtmp); SCORE is (-SCOREtmp)), !.
 
-negamax(_, Pmax, _, SCORE, _) :- changePlayer(Pmax,P1), checkWinning(P1), SCORE=0, !.
+negamax(DEPTH, Pmax, P, SCORE, _) :- changePlayer(Pmax,P1), checkWinning(P1), SCOREtmp is 1000*DEPTH, ((Pmax==P,SCORE is (-SCOREtmp)); SCORE=SCOREtmp), !.
 
-negamax(_, _, _, SCORE, _) :- isGameFull, SCORE=1, !.
+negamax(_, _, _, SCORE, _) :- isGameFull, SCORE=0, !.
 
-negamax(DEPTH, Pmax, P, SCORE, _) :- DEPTH==0, SCOREtmp is random(100)+1, ((Pmax==P, SCORE = SCOREtmp); SCORE is -SCOREtmp), !.
+negamax(DEPTH, Pmax, P, SCORE, _) :- DEPTH==0, SCOREtmp is random(100)+1, ((Pmax==P, SCORE = SCOREtmp); SCORE is (-SCOREtmp)), !.
 
 negamax(DEPTH, Pmax, P, SCORE, BestCol) :-
-                              SCOREinit = (-inf),
+                              SCOREinit is (-inf),
                               getGameBoard(GB),
                               forEachChild(0, GB, DEPTH, Pmax, P, SCOREinit, SCOREfinal, 1, BestColFinal),
                               SCORE = SCOREfinal,
@@ -29,8 +29,9 @@ forEachChild(COL, [_|GB], DEPTH, Pmax, P, SCORE, SCOREfinal, BestCol, BestColFin
                     changePlayer(P,P1),
                     DEPTHnext is DEPTH-1, negamax(DEPTHnext, Pmax, P1, SCOREtmp, _),
                     cancelPlayInCol(COL1),
-                    SCOREnega is -SCOREtmp,
+                    SCOREnega is (-SCOREtmp),
                     ((SCOREnega < SCORE, SCOREnext = SCORE, BestColNext = BestCol); SCOREnext = SCOREnega, BestColNext = COL1),
+                    (((DEPTH==3), write(COL1), write(','), writeln(SCOREnega)); write('')),
                     forEachChild(COL1, GB, DEPTH, Pmax, P, SCOREnext, SCOREfinal, BestColNext, BestColFinal).
 
 forEachChild(COL, [_|GB], DEPTH, Pmax, P, SCORE, SCOREfinal, BestCol, BestColFinal) :-
