@@ -5,13 +5,15 @@
   isGameFull/0,
   changePlayer/2,
   getGameBoard/1,
-  checkWinning/1
+  checkWinning/1,
+  maxDepth/1
 ]).
 
 :- use_module(negaMax).
 :- use_module(alphaBeta).
 
 :- dynamic col/2.
+:- dynamic maxDepth/1.
 
 isCol(1).
 isCol(2).
@@ -143,7 +145,7 @@ play(P, C) :- ((C==2, P==2); C==3), displayGame,
 chooseCol(COL,P, C) :- isCol(COL), not(isColFull(COL)), playInCol(COL,P), continueGame(COL, P, C).
 chooseCol(COL,P, C) :- (not(isCol(COL)); isColFull(COL)), writeln('Impossible de jouer sur cette colonne.'), write('Colonne choisie : '), read(COL1), chooseCol(COL1, P, C).
 
-ia(P, C) :- writeln(''), negamax(3, P, P, _, BestCol), writeln(BestCol), playInCol(BestCol, P), continueGame(BestCol, P, C).
+ia(P, C) :- writeln(''), assert(maxDepth(3)), negamax(3, P, P, _, BestCol), retract(maxDepth(3)), writeln(BestCol), playInCol(BestCol, P), continueGame(BestCol, P, C).
 
 
 continueGame(_,_,_) :- isGameFull, displayGame, writeln('Pas de vainqueur.'), resetGame.
