@@ -32,14 +32,13 @@ forEachChild(ALPHA, BETA, COL, [_|GB], DEPTH, Pmax, P, SCOREfinal, BestCol, Best
                     alphabeta(BETAnext, ALPHAnext, DEPTHnext, Pmax, P1, SCOREtmp, _),
                     cancelPlayInCol(COL1),
                     SCOREnega is -SCOREtmp,
-                    write('Profondeur : '), write(DEPTH), write(', Colonne : '), write(COL1), write(', Score : '), write(SCOREnega), write(', Alpha : '), write(ALPHA), write(', Beta : '), writeln(BETA),
                     (
                       ((SCOREnega < ALPHA; SCOREnega==ALPHA), forEachChild(ALPHA, BETA, COL1, GB, DEPTH, Pmax, P, SCOREfinal, BestCol, BestColFinal));
                       (
-                        ALPHAnew = SCOREnega, BestColNext = COL1, write('Mise à jour Alpha :'), writeln(ALPHAnew),
+                        ALPHAnew = SCOREnega, BestColNext = COL1,
                         (
                           (ALPHAnew < BETA, forEachChild(ALPHAnew, BETA, COL1, GB, DEPTH, Pmax, P, SCOREfinal, BestColNext, BestColFinal));
-                          (writeln('Coupure'), SCOREfinal = ALPHAnew, BestColFinal = BestColNext)
+                          (SCOREfinal = ALPHAnew, BestColFinal = BestColNext)
                         )
                       )
                     ).

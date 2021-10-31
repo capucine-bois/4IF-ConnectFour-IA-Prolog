@@ -31,7 +31,6 @@ forEachChild(COL, [_|GB], DEPTH, Pmax, P, SCORE, SCOREfinal, BestCol, BestColFin
                     cancelPlayInCol(COL1),
                     SCOREnega is (-SCOREtmp),
                     (((SCOREnega < SCORE; SCOREnega==SCORE),SCOREnext = SCORE, BestColNext = BestCol); SCOREnext = SCOREnega, BestColNext = COL1),
-                    write('Pronfondeur : '), write(DEPTH), write(', Colonne : '), write(COL1), write(', Score : '), writeln(SCOREnega),
                     forEachChild(COL1, GB, DEPTH, Pmax, P, SCOREnext, SCOREfinal, BestColNext, BestColFinal).
 
 forEachChild(COL, [_|GB], DEPTH, Pmax, P, SCORE, SCOREfinal, BestCol, BestColFinal) :-
