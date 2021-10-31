@@ -145,8 +145,8 @@ play(P, C) :- ((C==2, P==2); C==3), displayGame,
 chooseCol(COL,P, C) :- isCol(COL), not(isColFull(COL)), playInCol(COL,P), continueGame(COL, P, C).
 chooseCol(COL,P, C) :- (not(isCol(COL)); isColFull(COL)), writeln('Impossible de jouer sur cette colonne.'), write('Colonne choisie : '), read(COL1), chooseCol(COL1, P, C).
 
-depth(5).
-ia(P, C) :- depth(D), assert(maxDepth(D)), alphabeta((-inf), inf, D, P, P, _, BestCol), retract(maxDepth(D)), writeln(BestCol), playInCol(BestCol, P), continueGame(BestCol, P, C).
+depth(4).
+ia(P, C) :- depth(D), assert(maxDepth(D)), alphabeta((-inf), (inf), D, P, P, _, BestCol), retract(maxDepth(D)), writeln(BestCol), playInCol(BestCol, P), continueGame(BestCol, P, C).
 
 
 continueGame(_,_,_) :- isGameFull, displayGame, writeln('Pas de vainqueur.'), resetGame.
