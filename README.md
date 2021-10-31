@@ -3,7 +3,7 @@
 * Lancer SWI-Prolog
 * Charger le fichier `puissance4.pl` avec la commande :
 ```
-consult([puissance4,negamax]).
+consult([puissance4,negamax,alphabeta]).
 ```
 * Lancer une partie avec la commande :
 ```
