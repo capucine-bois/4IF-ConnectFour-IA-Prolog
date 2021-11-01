@@ -34,10 +34,30 @@ LISTESCOREP2(0,0,0,0,0,0,0).
 
     obtenirScoreLigne(CasesVides,Colonne,Gb,Score,P,ScoreTmp) :- COL1=Gb[Colonne+1],COL2=Gb[Colonne+2],COL3=Gb[Colonne+3],COL4=Gb[Colonne-1],COL5=Gb[Colonne-2],COL6=Gb[Colonne-3],
     % on teste si le score serait d'au moins 2 (donc si y a aune case vide à côté)
-(COL1[CasesVides[Colonne]]==P;COL4[CasesVides[Colonne]]==P,ScoreTmp=2),
-(ScoreTmp==2,(COL1[CasesVides[Colonne]]==P,COL4[CasesVides[Colonne]]==P);(COL1[CasesVides[Colonne]]==P,COL2[CasesVides[Colonne]]==P);(COL4[CasesVides[Colonne]]==P,COL5[CasesVides[Colonne]]==P),ScoreTmp=3),
-% on vérifie maintenant si le score vaut 4, il faudrait break à cet endroit là
+    (COL1[CasesVides[Colonne]]==P;COL4[CasesVides[Colonne]]==P,ScoreTmp=2),
+    (ScoreTmp==2,(COL1[CasesVides[Colonne]]==P,COL4[CasesVides[Colonne]]==P);(COL1[CasesVides[Colonne]]==P,COL2[CasesVides[Colonne]]==P);(COL4[CasesVides[Colonne]]==P,COL5[CasesVides[Colonne]]==P),ScoreTmp=3),
+    % on vérifie maintenant si le score vaut 4, il faudrait break à cet endroit là
     (ScoreTmp==3,(COL3[CasesVides[Colonne]]==P;COL6[CasesVides[Colonne]]==P),ScoreTmp=4,Score=10000000,!),Score=Score+ScoreTmp.
+
+    obtenirScoreLigne(+CasesVides,+COL,+P, -Score) :- P\== 0, (
+                ScoreTmp is 1,
+                 (COL1 is COL+1, COL2 is COL+2, COL3 is COL+3);
+                 (COL1 is COL-1, COL2 is COL+1, COL3 is COL+2);
+                 (COL1 is COL-2, COL2 is COL-1, COL3 is COL+1);
+                 (COL1 is COL-3, COL2 is COL-2, COL3 is COL-1)),
+                 col(COL,W),  W = [A1,A2,A3,A4,A5,A6],
+                 col(COL1,X), X = [B1,B2,B3,B4,B5,B6],
+                 col(COL2,Y), Y = [C1,C2,C3,C4,C5,C6],
+                 col(COL3,Z), Z = [D1,D2,D3,D4,D5,D6], (
+                 nth1(COL,CasesVides,CaseVide),
+                 CaseVide==1,(B1==0;B1==P, incr(ScoreTmp) ;!), (C1==0;C1==P, incr(ScoreTmp) ;!), (D1==0;D1==P, incr(ScoreTmp) ;!), assert(ScoreTmp), !;
+                 CaseVide==2,(B2==0;B2==P, incr(ScoreTmp) ;!), (C2==0;C2==P, incr(ScoreTmp) ;!), (D2==0;D2==P, incr(ScoreTmp) ;!), assert(ScoreTmp), !;
+                 CaseVide==3,(B3==0;B3==P, incr(ScoreTmp) ;!), (C3==0;C3==P, incr(ScoreTmp) ;!), (D3==0;D3==P, incr(ScoreTmp) ;!), assert(ScoreTmp), !;
+                 CaseVide==4,(B4==0;B4==P, incr(ScoreTmp) ;!), (C4==0;C4==P, incr(ScoreTmp) ;!), (D4==0;D4==P, incr(ScoreTmp) ;!), assert(ScoreTmp), !;
+                 CaseVide==5,(B5==0;B5==P, incr(ScoreTmp) ;!), (C5==0;C5==P, incr(ScoreTmp) ;!), (D5==0;D5==P, incr(ScoreTmp) ;!), assert(ScoreTmp), !;
+                 CaseVide==6,(B6==0;B6==P, incr(ScoreTmp) ;!), (C6==0;C6==P, incr(ScoreTmp) ;!), (D6==0;D6==P, incr(ScoreTmp) ;!), assert(ScoreTmp), !;
+                 
+                 ).
 
 
     % même principe que pour la ligne mais pour les colonnes
