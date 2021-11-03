@@ -145,7 +145,12 @@ play(P, C,IA1,IA2) :- ((C==2, P==2); C==3), displayGame,
 chooseCol(COL,P, C,IA1,IA2) :- isCol(COL), not(isColFull(COL)), playInCol(COL,P), continueGame(COL, P, C, IA1,IA2).
 chooseCol(COL,P, C,IA1,IA2) :- (not(isCol(COL)); isColFull(COL)), writeln('Impossible de jouer sur cette colonne.'), write('Colonne choisie : '), read(COL1), chooseCol(COL1, P, C,IA1,IA2).
 
+<<<<<<< HEAD
 ia(P, C,IA1,IA2) :- (P==1, playIA(IA1,P,BestCol); playIA(IA2,P,BestCol)), writeln(BestCol), playInCol(BestCol, P), continueGame(BestCol, P, C,IA1,IA2).
+=======
+depth(4).
+ia(P, C) :- depth(D), assert(maxDepth(D)), alphabeta((-inf), (inf), D, P, P, _, BestCol), retract(maxDepth(D)), writeln(BestCol), playInCol(BestCol, P), continueGame(BestCol, P, C).
+>>>>>>> ce082a862f430e0d872a7207e736409dfefa5d17
 
 playIA(1, P, BestCol) :- assert(maxDepth(3)), negamax(3, P, P, _, BestCol), retract(maxDepth(3)).
 playIA(2, P, BestCol) :- assert(maxDepth(4)), alphabeta((-inf), (inf), 4, P, P, _, BestCol), retract(maxDepth(4)).
