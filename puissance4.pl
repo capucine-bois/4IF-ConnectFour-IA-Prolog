@@ -5,12 +5,15 @@
   isGameFull/0,
   changePlayer/2,
   getGameBoard/1,
-  checkWinning/1
+  checkWinning/1,
+  maxDepth/1
 ]).
 
 :- use_module(negaMax).
+:- use_module(alphaBeta).
 
 :- dynamic col/2.
+:- dynamic maxDepth/1.
 
 isCol(1).
 isCol(2).
@@ -127,27 +130,29 @@ isGameFull :- isColFull(1), isColFull(2), isColFull(3), isColFull(4), isColFull(
 
 % Partie joueur humain
 
-play(P,C) :- (C==1;(C==2, P==1)), displayGame,
+play(P,C,IA1,IA2) :- (C==1;(C==2, P==1)), displayGame,
            write('Le joueur '), write(P), writeln(' doit jouer.'),
            write('Colonne choisie : '), read(COL),
-           chooseCol(COL, P,C ).
+           chooseCol(COL, P,C,IA1,IA2).
 
 % Partie IA
 
-play(P, C) :- ((C==2, P==2); C==3), displayGame,
+play(P, C,IA1,IA2) :- ((C==2, P==2); C==3), displayGame,
            write('L\' IA '), write(P), writeln(' doit jouer.'),
-           write('Colonne choisie : '), ia(P, C).
+           write('Colonne choisie : '), ia(P, C,IA1,IA2).
 
 
-chooseCol(COL,P, C) :- isCol(COL), not(isColFull(COL)), playInCol(COL,P), continueGame(COL, P, C).
-chooseCol(COL,P, C) :- (not(isCol(COL)); isColFull(COL)), writeln('Impossible de jouer sur cette colonne.'), write('Colonne choisie : '), read(COL1), chooseCol(COL1, P, C).
+chooseCol(COL,P, C,IA1,IA2) :- isCol(COL), not(isColFull(COL)), playInCol(COL,P), continueGame(COL, P, C, IA1,IA2).
+chooseCol(COL,P, C,IA1,IA2) :- (not(isCol(COL)); isColFull(COL)), writeln('Impossible de jouer sur cette colonne.'), write('Colonne choisie : '), read(COL1), chooseCol(COL1, P, C,IA1,IA2).
 
-ia(P, C) :- negamax(3, P, P, _, BestCol), writeln(BestCol), playInCol(BestCol, P), continueGame(BestCol, P, C).
+ia(P, C,IA1,IA2) :- (P==1, playIA(IA1,P,BestCol); playIA(IA2,P,BestCol)), writeln(BestCol), playInCol(BestCol, P), continueGame(BestCol, P, C,IA1,IA2).
 
+playIA(1, P, BestCol) :- assert(maxDepth(3)), negamax(3, P, P, _, BestCol), retract(maxDepth(3)).
+playIA(2, P, BestCol) :- assert(maxDepth(4)), alphabeta((-inf), (inf), 4, P, P, _, BestCol), retract(maxDepth(4)).
 
-continueGame(_,_,_) :- isGameFull, displayGame, writeln('Pas de vainqueur.'), resetGame.
-continueGame(COL,P,_) :- not(isGameFull), winner(COL,P), displayGame, write('Le joueur '), write(P), writeln(' a gagné'), resetGame.
-continueGame(COL,P,C) :- not(isGameFull), not(winner(COL,P)), changePlayer(P,P1), play(P1,C).
+continueGame(_,_,_,_,_) :- isGameFull, displayGame, writeln('Pas de vainqueur.'), resetGame.
+continueGame(COL,P,_,_,_) :- not(isGameFull), winner(COL,P), displayGame, write('Le joueur '), write(P), writeln(' a gagné'), resetGame.
+continueGame(COL,P,C,IA1,IA2) :- not(isGameFull), not(winner(COL,P)), changePlayer(P,P1), play(P1,C,IA1,IA2).
 changePlayer(P,P1) :- P==1, P1 = 2.
 changePlayer(P,P1) :- P==2, P1 = 1.
 resetCol(COL) :- col(COL,X), retract(col(COL,X)).
@@ -157,13 +162,25 @@ resetGame :- resetCol(1), resetCol(2), resetCol(3), resetCol(4), resetCol(5), re
 
 % lancer la partie
 
-playGame :- initGame, choice(C), play(1,C).
-choice(C) :- writeln('CHOIX 1 : 2 joueurs humains ?'),
+playGame :- initGame, choice(C, IA1, IA2), play(1, C, IA1, IA2).
+choice(C, IA1, IA2) :- writeln('CHOIX 1 : 2 joueurs humains ?'),
             writeln('CHOIX 2 : 1 joueur humain contre une IA ?'),
             writeln('CHOIX 3 : 2 IA ?'),
-            write('Tapez votre choix : '), read(Num), checkMode(Num, C).
+            write('Tapez votre choix : '), read(Num), checkMode(Num, C), chooseIA(C, IA1, IA2).
 checkMode(Num, C) :- ((Num == 1 ; Num == 2 ; Num == 3), C = Num);
                      (writeln("Vous devez choisir entres les choix 1, 2 ou 3."), write('Tapez votre choix : '), read(Num1), checkMode(Num1, C)).
+
+chooseIA(1,_,_).
+chooseIA(C, IA1, IA2) :- ((C==2), writeIAChoice(2), read(Num), checkNumIA(Num, IA2), IA1=0);
+                         ((C==3), writeIAChoice(1), read(Num1), checkNumIA(Num1, IA1),  writeIAChoice(2), read(Num2), checkNumIA(Num2, IA2)).
+
+writeIAChoice(Num) :- write('Niveau IA '), (((Num==1; Num==2),write(Num));write()), writeln(' :'),
+                      writeln('CHOIX 1 : IA aléatoire minmax'),
+                      writeln('CHOIX 2 : IA aléatoire aphabeta'),
+                      write('Tapez votre choix : ').
+
+checkNumIA(Num, IA) :- (((Num == 1 ; Num == 2), IA = Num);
+                        (writeln("Vous devez choisir entres les choix 1 ou 2."), write('Tapez votre choix : '), read(Num1), checkNumIA(Num1, IA))).
 
 
 getGameBoard(GB):-  col(1,A),
