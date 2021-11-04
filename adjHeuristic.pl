@@ -6,12 +6,27 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%% MAIN FUNCTION TO CALL %%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Parameters :
-% GB : GAMEBOARD, JUST AFTER PLAYING THE COIN, <=> the actual configuration
-% NUMCOL : THE NUMBER OF THE COLUMN WHERE THE PLAYER JUST PUT HIS COIN
-% SCORE : VARIABLE, equals the SCORE of the configuration
-heuristicAdj(GB,NUMCOL,SCORE):- biggestScoreofAllLines(GB,NUMCOL,SCORE).
+% IN Parameter :
+% GB : GAMEBOARD, JUST BEFORE PLAYING THE COIN, <=> the actual configuration
+% OUT Parameter :
+% NUMCOL : THE NUMBER OF THE COLUMN WHERE THE PLAYER SHOULD PLAY
+heuristicAdj(GB, NUMCOL):-heuristicAdjOneColumn(GB,1,SCORE1),
+                          heuristicAdjOneColumn(GB,2,SCORE2),
+                          ((SCORE1>SCORE2, INTM1 is 1, CURRENT is SCORE1);(SCORE2>=SCORE1, INTM1 is 2, CURRENT is SCORE2)),
+                          heuristicAdjOneColumn(GB,3,SCORE3),
+                          ((SCORE3>CURRENT, INTM2 is 3, CURRENT2 is SCORE3);(CURRENT>=SCORE3, INTM2 is INTM1, CURRENT2 is CURRENT)),
+                          heuristicAdjOneColumn(GB,4,SCORE4),
+                          ((SCORE4>CURRENT2, INTM3 is 4, CURRENT3 is SCORE4);(CURRENT2>=SCORE4, INTM3 is INTM2, CURRENT3 is CURRENT2)),
+                          heuristicAdjOneColumn(GB,5,SCORE5),
+                          ((SCORE5>CURRENT3, INTM4 is 5, CURRENT4 is SCORE5);(CURRENT3>=SCORE5, INTM4 is INTM3, CURRENT4 is CURRENT3)),
+                          heuristicAdjOneColumn(GB,6,SCORE6),
+                          ((SCORE6>CURRENT4, INTM5 is 6, CURRENT5 is SCORE6);(CURRENT4>=SCORE6, INTM5 is INTM4, CURRENT5 is CURRENT4)),
+                          heuristicAdjOneColumn(GB,7,SCORE7),
+                          ((SCORE7>CURRENT5, INTM6 is 7);(CURRENT5>=SCORE7, INTM6 is INTM5)),
+                          NUMCOL is INTM6,!.
 
+
+heuristicAdjOneColumn(GB,NUMCOL,SCORE):- biggestScoreofAllLines(GB,NUMCOL,SCORE).
 
 %% get All the scores of each Line( Diag A,Diag D, HORIZ, VERTIC) and keep the max
 biggestScoreofAllLines(GB,NUMCOL,SCORE):-vScore(GB,NUMCOL,SCORE1), hScore(GB,NUMCOL,SCORE2), INTM is max(SCORE1,SCORE2), daScore(GB,NUMCOL,SCORE3), INTM2 is max(INTM,SCORE3), ddScore(GB,NUMCOL,SCORE4), SCORE is max(INTM2,SCORE4), !.
@@ -54,12 +69,12 @@ getElem2D(GB,INDEXCOL,INDEXLINE, ELEM):-nth1(INDEXCOL,GB,X), nth1(INDEXLINE,X,EL
 
 
 firstElem([Element|_], Element, 0):- !.
-firstElem([_|Tail], Element, Index):-  firstElem(Tail, Element, Index1),  !,  Index is Index1+1.
+firstElem([_|Tail], Element, Index):-  firstElem(Tail, Element, Index1),  !,  Index is Index1 +1 .
 
 
 %COL est la colonne et non le n° de colonne
-getIndexFirstElem(GB, NUMCOL, INDEX):-    nth1(NUMCOL,GB,COL), ((firstElem(COL, 2, INDEX2),firstElem(COL, 1, INDEX1), I is min(INDEX1,INDEX2), INDEX is I+1);
-                                    ((firstElem(COL, 1, INDEX1), I is INDEX1, INDEX is I+1);(firstElem(COL, 2, INDEX2),  I is INDEX2, INDEX is I+1))).
+getIndexFirstElem(GB, NUMCOL, INDEX):-    nth1(NUMCOL,GB,COL), ((firstElem(COL, 2, INDEX2),firstElem(COL, 1, INDEX1), I is min(INDEX1,INDEX2), INDEX is I);
+                                    ((firstElem(COL, 1, INDEX1), I is INDEX1, INDEX is I);(firstElem(COL, 2, INDEX2),  I is INDEX2, INDEX is I))).
 
 
 
