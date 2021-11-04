@@ -91,7 +91,7 @@ getVLine(GB,NUMCOL,LINE) :- (getIndexFirstElem(GB, NUMCOL,INDEX); INDEX is 6), I
 %%  HORIZONTAL LINE %%
 %%%%%%%%%%%%%%%%%%%%%%
 getHoriz(GB, NUMCOL, LINE):- (getIndexFirstElem(GB, NUMCOL,INDEX); INDEX is 6),
-                             INDEX1 is (INDEX-1), (NUMCOL1 is NUMCOL-1), replace(GB, NUMCOL1, INDEX1, 3, GB1),
+                             INDEX1 is (INDEX), (NUMCOL1 is NUMCOL-1), replace(GB, NUMCOL1, INDEX1, 3, GB1),
                              getElem2D(GB1,1,INDEX,A),
                              getElem2D(GB1,2,INDEX,B),
                              getElem2D(GB1,3,INDEX,C),
@@ -106,7 +106,7 @@ getHoriz(GB, NUMCOL, LINE):- (getIndexFirstElem(GB, NUMCOL,INDEX); INDEX is 6),
 %%  DIAGONAL ASC  %%
 %%%%%%%%%%%%%%%%%%%%
 getAscDiag(GB, NUMCOL, LINE):- (getIndexFirstElem(GB, NUMCOL,INDEX); INDEX is 6), DIAGLENGTH is INDEX+NUMCOL,
-                                  INDEX1 is (INDEX-1), (NUMCOL1 is NUMCOL-1), replace(GB, NUMCOL1, INDEX1, 3, GB1),
+                                  INDEX1 is (INDEX), (NUMCOL1 is NUMCOL-1), replace(GB, NUMCOL1, INDEX1, 3, GB1),
                                   getDiag1(GB1, DIAGLENGTH, NUMCOL, INDEX, LINE), !.
 
 % 1 seul élément sur diagonale
@@ -139,7 +139,7 @@ getDiag1(GB,LENGTH, _, _, DIAG):- LENGTH==8,  getElem2D(GB,2,6, ELEM1), getElem2
 %%  DIAGONAL DESC  %%
 %%%%%%%%%%%%%%%%%%%%%
 getDescDiag(GB, NUMCOL, LINE):- (getIndexFirstElem(GB, NUMCOL,INDEX); INDEX is 6), DIAGLENGTH is NUMCOL-INDEX,
-                                   INDEX1 is (INDEX-1), (NUMCOL1 is NUMCOL-1), replace(GB, NUMCOL1, INDEX1, 3, GB1),
+                                   INDEX1 is (INDEX), (NUMCOL1 is NUMCOL-1), replace(GB, NUMCOL1, INDEX1, 3, GB1),
                                    getDiag2(GB1, DIAGLENGTH, NUMCOL, INDEX, LINE),!.
 
 % 1 seul élément sur diagonale
