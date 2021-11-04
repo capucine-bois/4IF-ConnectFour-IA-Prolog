@@ -6,7 +6,8 @@
   changePlayer/2,
   getGameBoard/1,
   checkWinning/1,
-  maxDepth/1
+  maxDepth/1,
+  col/2
 ]).
 
 :- use_module(negaMax).
@@ -147,10 +148,12 @@ chooseCol(COL,P, C,IA1,IA2) :- (not(isCol(COL)); isColFull(COL)), writeln('Impos
 
 ia(P, C,IA1,IA2) :- (P==1, playIA(IA1,P,BestCol); playIA(IA2,P,BestCol)), writeln(BestCol), playInCol(BestCol, P), continueGame(BestCol, P, C,IA1,IA2).
 
-playIA(1, P, BestCol) :- assert(maxDepth(3)), negamax(0, 3, P, P, _, BestCol), retract(maxDepth(3)).
-playIA(2, P, BestCol) :- assert(maxDepth(4)), alphabeta(0, (-inf), (inf), 4, P, P, _, BestCol), retract(maxDepth(4)).
-playIA(3, P, BestCol) :- assert(maxDepth(3)), negamax(1, 3, P, P, _, BestCol), retract(maxDepth(3)).
-playIA(4, P, BestCol) :- assert(maxDepth(4)), alphabeta(1, (-inf), (inf), 4, P, P, _, BestCol), retract(maxDepth(4)).
+playIA(IA, P, BestCol) :- IA == 1, DEPTH = 3, assert(maxDepth(DEPTH)), negamax(0, DEPTH, P, P, _, BestCol), retract(maxDepth(DEPTH)).
+playIA(IA, P, BestCol) :- IA == 2, DEPTH = 4, assert(maxDepth(DEPTH)), alphabeta(0, (-inf), (inf), DEPTH, P, P, _, BestCol), retract(maxDepth(DEPTH)).
+playIA(IA, P, BestCol) :- IA == 3, DEPTH = 3, assert(maxDepth(DEPTH)), negamax(1, DEPTH, P, P, _, BestCol), retract(maxDepth(DEPTH)).
+playIA(IA, P, BestCol) :- IA == 4, DEPTH = 4, assert(maxDepth(DEPTH)), alphabeta(1, (-inf), (inf), DEPTH, P, P, _, BestCol), retract(maxDepth(DEPTH)).
+playIA(IA, P, BestCol) :- IA == 5, DEPTH = 3, assert(maxDepth(DEPTH)), negamax(2, DEPTH, P, P, _, BestCol), retract(maxDepth(DEPTH)).
+playIA(IA, P, BestCol) :- IA == 6, DEPTH = 4, assert(maxDepth(DEPTH)), alphabeta(2, (-inf), (inf), DEPTH, P, P, _, BestCol), retract(maxDepth(DEPTH)).
 
 continueGame(_,_,_,_,_) :- isGameFull, displayGame, writeln('Pas de vainqueur.'), resetGame.
 continueGame(COL,P,_,_,_) :- not(isGameFull), winner(COL,P), displayGame, write('Le joueur '), write(P), writeln(' a gagné'), resetGame.
@@ -181,10 +184,12 @@ writeIAChoice(Num) :- write('Niveau IA '), (((Num==1; Num==2),write(Num));write(
                       writeln('CHOIX 2 : IA aléatoire alphabeta'),
                       writeln('CHOIX 3 : IA heuristique grille minmax'),
                       writeln('CHOIX 4 : IA heuristique grille alphabeta'),
+                      writeln('CHOIX 5 : IA heuristique grille dynamique minmax'),
+                      writeln('CHOIX 6 : IA heuristique grille dynmaique alphabeta'),
                       write('Tapez votre choix : ').
 
-checkNumIA(Num, IA) :- (((Num == 1 ; Num == 2 ; Num == 3 ; Num == 4), IA = Num);
-                        (writeln("Vous devez choisir entres les choix 1, 2, 3 ou 4."), write('Tapez votre choix : '), read(Num1), checkNumIA(Num1, IA))).
+checkNumIA(Num, IA) :- (((Num == 1 ; Num == 2 ; Num == 3 ; Num == 4 ; Num == 5 ; Num ==6), IA = Num);
+                        (writeln("Vous devez choisir entres les choix 1, 2, 3, 4, 5 ou 6."), write('Tapez votre choix : '), read(Num1), checkNumIA(Num1, IA))).
 
 
 getGameBoard(GB):-  col(1,A),

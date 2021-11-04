@@ -4,6 +4,7 @@
 
 :- use_module(puissance4).
 :- use_module(heuristiqueGrille).
+:- use_module(heuristiqueGrilleDynamique).
 
 % algorithme alphabeta (avec simplification negaMax)
 
@@ -16,7 +17,8 @@ alphabeta(_, _, _, _, _, _, SCORE, _) :- isGameFull, SCORE=0, !.
 alphabeta(H, _, _, DEPTH, Pmax, P, SCORE, _) :- DEPTH==0,
                                             (
                                             (H==0, SCOREtmp is random(800)+100);
-                                            (H==1, getGameBoard(GB), heuristiqueGrille(SCOREtmp,GB,Pmax))
+                                            (H==1, getGameBoard(GB), heuristiqueGrille(SCOREtmp,GB,Pmax));
+                                            (H==2, getGameBoard(GB), heuristiqueGrilleDynamique(SCOREtmp,GB,Pmax))
                                             ),
                                             ((Pmax==P, SCORE = SCOREtmp); SCORE is (-SCOREtmp)), !.
 
