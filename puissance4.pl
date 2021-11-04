@@ -12,6 +12,7 @@
 
 :- use_module(negaMax).
 :- use_module(alphaBeta).
+:- use_module(adjHeuristic).
 
 :- dynamic col/2.
 :- dynamic maxDepth/1.
@@ -154,6 +155,7 @@ playIA(IA, P, BestCol) :- IA == 3, DEPTH = 3, assert(maxDepth(DEPTH)), negamax(1
 playIA(IA, P, BestCol) :- IA == 4, DEPTH = 4, assert(maxDepth(DEPTH)), alphabeta(1, (-inf), (inf), DEPTH, P, P, _, BestCol), retract(maxDepth(DEPTH)).
 playIA(IA, P, BestCol) :- IA == 5, DEPTH = 3, assert(maxDepth(DEPTH)), negamax(2, DEPTH, P, P, _, BestCol), retract(maxDepth(DEPTH)).
 playIA(IA, P, BestCol) :- IA == 6, DEPTH = 4, assert(maxDepth(DEPTH)), alphabeta(2, (-inf), (inf), DEPTH, P, P, _, BestCol), retract(maxDepth(DEPTH)).
+playIA(IA, _, BestCol) :- IA == 7, getGameBoard(GB), heuristicAdj(GB, BestCol).
 
 continueGame(_,_,_,_,_) :- isGameFull, displayGame, writeln('Pas de vainqueur.'), resetGame.
 continueGame(COL,P,_,_,_) :- not(isGameFull), winner(COL,P), displayGame, write('Le joueur '), write(P), writeln(' a gagné'), resetGame.
@@ -185,11 +187,12 @@ writeIAChoice(Num) :- write('Niveau IA '), (((Num==1; Num==2),write(Num));write(
                       writeln('CHOIX 3 : IA heuristique grille minmax'),
                       writeln('CHOIX 4 : IA heuristique grille alphabeta'),
                       writeln('CHOIX 5 : IA heuristique grille dynamique minmax'),
-                      writeln('CHOIX 6 : IA heuristique grille dynmaique alphabeta'),
+                      writeln('CHOIX 6 : IA heuristique grille dynamique alphabeta'),
+                      writeln('CHOIX 7 : IA heuristique adjacence'),
                       write('Tapez votre choix : ').
 
-checkNumIA(Num, IA) :- (((Num == 1 ; Num == 2 ; Num == 3 ; Num == 4 ; Num == 5 ; Num ==6), IA = Num);
-                        (writeln("Vous devez choisir entres les choix 1, 2, 3, 4, 5 ou 6."), write('Tapez votre choix : '), read(Num1), checkNumIA(Num1, IA))).
+checkNumIA(Num, IA) :- (((Num == 1 ; Num == 2 ; Num == 3 ; Num == 4 ; Num == 5 ; Num == 6 ; Num == 7), IA = Num);
+                        (writeln("Vous devez choisir entres les choix 1, 2, 3, 4, 5, 6 ou 7."), write('Tapez votre choix : '), read(Num1), checkNumIA(Num1, IA))).
 
 
 getGameBoard(GB):-  col(1,A),

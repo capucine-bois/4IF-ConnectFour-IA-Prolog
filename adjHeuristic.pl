@@ -2,6 +2,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% ADJACENCE HEURISTIC %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+:- module(adjHeuristic, [
+    heuristicAdj/2
+]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%% MAIN FUNCTION TO CALL %%%%%%
@@ -40,14 +43,14 @@ ddScore(GB,NUMCOL,SCORE):- getDescDiag(GB,NUMCOL,LINE), scoreLINE(LINE,SCORE).
 scoreLINE(LINE,SCORE):- countSuccessiveOnes(LINE,COUNT1), countSuccessiveTwos(LINE, COUNT2), SCORE is max(COUNT1,COUNT2),!. % puis reverse, countOnes .. COUNT2, additionner COUNT1 et COUNT2, faire de meme pour les 2 et prendre le max, SCORE=max
 
 
-countSuccessiveOnes(LINE, SCORE):- afterPlayerCoin(LINE, LINE1), countOnes(LINE1, SCORE1), 
-                                   reverse(LINE, REVLINE), 
-                                   afterPlayerCoin(REVLINE, LINE2), countOnes(LINE2, SCORE2), 
+countSuccessiveOnes(LINE, SCORE):- afterPlayerCoin(LINE, LINE1), countOnes(LINE1, SCORE1),
+                                   reverse(LINE, REVLINE),
+                                   afterPlayerCoin(REVLINE, LINE2), countOnes(LINE2, SCORE2),
                                    SCORE is SCORE1+SCORE2+1. % +1 for the playerCoin
 
-countSuccessiveTwos(LINE, SCORE):- afterPlayerCoin(LINE, LINE1), countTwos(LINE1, SCORE1), 
-                                   reverse(LINE, REVLINE), 
-                                   afterPlayerCoin(REVLINE, LINE2), countTwos(LINE2, SCORE2), 
+countSuccessiveTwos(LINE, SCORE):- afterPlayerCoin(LINE, LINE1), countTwos(LINE1, SCORE1),
+                                   reverse(LINE, REVLINE),
+                                   afterPlayerCoin(REVLINE, LINE2), countTwos(LINE2, SCORE2),
                                    SCORE is SCORE1+SCORE2+1,!. % +1 for the playerCoin
 
 
@@ -80,21 +83,21 @@ getIndexFirstElem(GB, NUMCOL, INDEX):-    nth1(NUMCOL,GB,COL), ((firstElem(COL, 
 
 %%%%%%%%%%%%%%%%%%%%%
 %%  VERTICAL LINE  %%
-%%%%%%%%%%%%%%%%%%%%%                          
-getVLine(GB,NUMCOL,LINE) :- (getIndexFirstElem(GB, NUMCOL,INDEX); INDEX is 6), INDEX1 is (INDEX-1), (NUMCOL1 is NUMCOL-1), replace(GB, NUMCOL1, INDEX1, 3, GB1), nth1(NUMCOL,GB1,LINE),!. 
+%%%%%%%%%%%%%%%%%%%%%
+getVLine(GB,NUMCOL,LINE) :- (getIndexFirstElem(GB, NUMCOL,INDEX); INDEX is 6), INDEX1 is (INDEX-1), (NUMCOL1 is NUMCOL-1), replace(GB, NUMCOL1, INDEX1, 3, GB1), nth1(NUMCOL,GB1,LINE),!.
 
 
 %%%%%%%%%%%%%%%%%%%%%%
 %%  HORIZONTAL LINE %%
 %%%%%%%%%%%%%%%%%%%%%%
-getHoriz(GB, NUMCOL, LINE):- (getIndexFirstElem(GB, NUMCOL,INDEX); INDEX is 6), 
-                             INDEX1 is (INDEX-1), (NUMCOL1 is NUMCOL-1), replace(GB, NUMCOL1, INDEX1, 3, GB1), 
-                             getElem2D(GB1,1,INDEX,A), 
-                             getElem2D(GB1,2,INDEX,B), 
-                             getElem2D(GB1,3,INDEX,C), 
-                             getElem2D(GB1,4,INDEX,D), 
-                             getElem2D(GB1,5,INDEX,E), 
-                             getElem2D(GB1,6,INDEX,F), 
+getHoriz(GB, NUMCOL, LINE):- (getIndexFirstElem(GB, NUMCOL,INDEX); INDEX is 6),
+                             INDEX1 is (INDEX-1), (NUMCOL1 is NUMCOL-1), replace(GB, NUMCOL1, INDEX1, 3, GB1),
+                             getElem2D(GB1,1,INDEX,A),
+                             getElem2D(GB1,2,INDEX,B),
+                             getElem2D(GB1,3,INDEX,C),
+                             getElem2D(GB1,4,INDEX,D),
+                             getElem2D(GB1,5,INDEX,E),
+                             getElem2D(GB1,6,INDEX,F),
                              getElem2D(GB1,7,INDEX,G),
                              LINE = [A,B,C,D,E,F,G], !.
 
@@ -102,8 +105,8 @@ getHoriz(GB, NUMCOL, LINE):- (getIndexFirstElem(GB, NUMCOL,INDEX); INDEX is 6),
 %%%%%%%%%%%%%%%%%%%%
 %%  DIAGONAL ASC  %%
 %%%%%%%%%%%%%%%%%%%%
-getAscDiag(GB, NUMCOL, LINE):- (getIndexFirstElem(GB, NUMCOL,INDEX); INDEX is 6), DIAGLENGTH is INDEX+NUMCOL, 
-                                  INDEX1 is (INDEX-1), (NUMCOL1 is NUMCOL-1), replace(GB, NUMCOL1, INDEX1, 3, GB1), 
+getAscDiag(GB, NUMCOL, LINE):- (getIndexFirstElem(GB, NUMCOL,INDEX); INDEX is 6), DIAGLENGTH is INDEX+NUMCOL,
+                                  INDEX1 is (INDEX-1), (NUMCOL1 is NUMCOL-1), replace(GB, NUMCOL1, INDEX1, 3, GB1),
                                   getDiag1(GB1, DIAGLENGTH, NUMCOL, INDEX, LINE), !.
 
 % 1 seul élément sur diagonale
@@ -135,8 +138,8 @@ getDiag1(GB,LENGTH, _, _, DIAG):- LENGTH==8,  getElem2D(GB,2,6, ELEM1), getElem2
 %%%%%%%%%%%%%%%%%%%%%
 %%  DIAGONAL DESC  %%
 %%%%%%%%%%%%%%%%%%%%%
-getDescDiag(GB, NUMCOL, LINE):- (getIndexFirstElem(GB, NUMCOL,INDEX); INDEX is 6), DIAGLENGTH is NUMCOL-INDEX, 
-                                   INDEX1 is (INDEX-1), (NUMCOL1 is NUMCOL-1), replace(GB, NUMCOL1, INDEX1, 3, GB1), 
+getDescDiag(GB, NUMCOL, LINE):- (getIndexFirstElem(GB, NUMCOL,INDEX); INDEX is 6), DIAGLENGTH is NUMCOL-INDEX,
+                                   INDEX1 is (INDEX-1), (NUMCOL1 is NUMCOL-1), replace(GB, NUMCOL1, INDEX1, 3, GB1),
                                    getDiag2(GB1, DIAGLENGTH, NUMCOL, INDEX, LINE),!.
 
 % 1 seul élément sur diagonale
