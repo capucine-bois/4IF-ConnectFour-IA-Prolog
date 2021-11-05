@@ -155,7 +155,7 @@ playIA(IA, P, BestCol) :- IA == 3, DEPTH = 3, assert(maxDepth(DEPTH)), negamax(1
 playIA(IA, P, BestCol) :- IA == 4, DEPTH = 4, assert(maxDepth(DEPTH)), alphabeta(1, (-inf), (inf), DEPTH, P, P, _, BestCol), retract(maxDepth(DEPTH)).
 playIA(IA, P, BestCol) :- IA == 5, DEPTH = 3, assert(maxDepth(DEPTH)), negamax(2, DEPTH, P, P, _, BestCol), retract(maxDepth(DEPTH)).
 playIA(IA, P, BestCol) :- IA == 6, DEPTH = 4, assert(maxDepth(DEPTH)), alphabeta(2, (-inf), (inf), DEPTH, P, P, _, BestCol), retract(maxDepth(DEPTH)).
-playIA(IA, _, BestCol) :- IA == 7, getGameBoard(GB), heuristicAdj(GB, BestCol).
+playIA(IA, P, BestCol) :- IA == 7, getGameBoard(GB), heuristicAdj(GB, BestCol,P).
 
 continueGame(_,_,_,_,_) :- isGameFull, displayGame, writeln('Pas de vainqueur.'), resetGame.
 continueGame(COL,P,_,_,_) :- not(isGameFull), winner(COL,P), displayGame, write('Le joueur '), write(P), writeln(' a gagné'), resetGame.
