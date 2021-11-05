@@ -39,14 +39,8 @@ biggestScoreofAllLines(GB,NUMCOL,SCORE,P):- vScore(GB,NUMCOL,SCORE1, SCORE11,P),
                                           hScore(GB,NUMCOL, SCORE2, SCORE22,P),  
                                           daScore(GB,NUMCOL,SCORE3, SCORE33,P), 
                                           ddScore(GB,NUMCOL,SCORE4, SCORE44,P), 
-
-                                          (
-                                            INTM1 is SCORE1+SCORE2+SCORE3+SCORE4
-                                          ),
-
-                                          (
-                                             INTM2 is SCORE11+SCORE22+SCORE33+SCORE44
-                                          ),
+                                          (INTM1 is SCORE1+SCORE2+SCORE3+SCORE4),
+                                          (INTM2 is SCORE11+SCORE22+SCORE33+SCORE44),
                                           SCORE is INTM1+INTM2,!.
 
 
@@ -57,16 +51,24 @@ ddScore(GB,NUMCOL,SCORE1, SCORE2,P):- getDescDiag(GB,NUMCOL,LINE), scoreLINE(LIN
 
 
 %get The score of a line (consecutive occurences)
-scoreLINE(LINE,SCOREONE, SCORETWO, P):- (
+scoreLINE(LINE,SCOREONE, SCORETWO, _):- (
                           (isEnoughFor4Coins(LINE, S1,1), S1>=4,(
                             countSuccessiveOnes(LINE,COUNT1), 
-                            ((COUNT1>=4, ((P==1,INTM1 is 100);(P==2, INTM1 is 1000))); (COUNT1<4, INTM1 is COUNT1))))
+                            ((COUNT1>=4, INTM1 is 10000); 
+                            (COUNT1==3, INTM1 is 15);
+                            (COUNT1==2, INTM1 is 5);
+                            (COUNT1==1, INTM1 is COUNT1)
+                            )))
                         ;
                         (INTM1 is 0)),
                         (
                           (isEnoughFor4Coins(LINE, S2,2), S2>=4,(
                             countSuccessiveTwos(LINE, COUNT2),
-                            ((COUNT2>=4, ((P==2,INTM2 is 100);(P==1, INTM2 is 1000))); (COUNT2<4, INTM2 is COUNT2))))
+                            ((COUNT2>=4, INTM2 is 10000);  
+                            (COUNT2==3, INTM2 is 15);
+                            (COUNT2==2, INTM2 is 5);
+                            (COUNT2==1, INTM2 is COUNT2)
+                            )))
                         ;
                         (INTM2 is 0)),
                         SCOREONE is INTM1,
@@ -101,6 +103,7 @@ countSuccessiveTwos(LINE, SCORE):- afterPlayerCoin(LINE, LINE1), countTwos(LINE1
 afterPlayerCoin([3|T], LINE1):- LINE1=T.
 afterPlayerCoin([X|T],LINE1) :- X\==3, afterPlayerCoin(T,TEMP), LINE1 = TEMP,!.
 
+afterFreePlace([], LINE1):- LINE1=[].
 afterFreePlace([0|T], LINE1):- LINE1=T.
 afterFreePlace([_|T],LINE1) :- afterFreePlace(T,TEMP), LINE1 = TEMP,!.
 afterFreePlace([_|T],LINE1) :- T==[], LINE1 = [],!.
