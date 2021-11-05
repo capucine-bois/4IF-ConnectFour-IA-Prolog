@@ -6,20 +6,20 @@
 
 heuristiqueGrilleDynamique(SCOREFinal,GB,P) :-
   calculColonne(1,GB,P,0,SOMMEScore),
-  SCOREFinal is SOMMEScore + 500.
+  SCOREFinal is SOMMEScore + 500, !.
 
 calculColonne(_,[],_,SommeColonnes,SommeScore) :-
-  SommeScore = SommeColonnes.
+  SommeScore = SommeColonnes, !.
 
 calculColonne(COL,[X|GB],P,ScoreInit,SommeScore) :-
   calculCase(1,COL,X,P,ScoreInit,ScoreCol),
   COL1 is COL+1,
-  calculColonne(COL1,GB,P,ScoreCol,SommeScore).
+  calculColonne(COL1,GB,P,ScoreCol,SommeScore), !.
 
 
 
 calculCase(_,_,[],_,ScoreInit,SommeScore) :-
-  SommeScore = ScoreInit.
+  SommeScore = ScoreInit, !.
 
 
 calculCase(LINE,COL,[Case|X],P,ScoreInit,SommeScore) :-
@@ -28,7 +28,7 @@ calculCase(LINE,COL,[Case|X],P,ScoreInit,SommeScore) :-
   (Case \== 0, SommeCaseTemp is ScoreInit - CaseTab);
   (Case == 0), SommeCaseTemp is ScoreInit),
   LINE1 is LINE+1,
-  calculCase(LINE1,COL,X,P,SommeCaseTemp,SommeScore).
+  calculCase(LINE1,COL,X,P,SommeCaseTemp,SommeScore), !.
 
 
 computeTableValue(COL,LINE,P,VALUE) :-
@@ -126,14 +126,14 @@ computeTableValue(COL,LINE,P,VALUE) :-
         checkPlayerOrFree(P, Possibilities, 0, VALUE), !.
 
 
-checkPlayerOrFree(_,[],InitValue,VALUE) :- VALUE = InitValue.
-checkPlayerOrFree(P, [X|Possibilities], InitValue, VALUE) :- ((checkPossibility(P,X),VALUEtmp is InitValue + 1); VALUEtmp = InitValue), checkPlayerOrFree(P,Possibilities,VALUEtmp,VALUE).
+checkPlayerOrFree(_,[],InitValue,VALUE) :- VALUE = InitValue, !.
+checkPlayerOrFree(P, [X|Possibilities], InitValue, VALUE) :- ((checkPossibility(P,X),VALUEtmp is InitValue + 1); VALUEtmp = InitValue), checkPlayerOrFree(P,Possibilities,VALUEtmp,VALUE), !.
 
 checkPossibility(_,[]).
-checkPossibility(P,[X|Possibility]) :- (X==P;X==0), checkPossibility(P,Possibility).
+checkPossibility(P,[X|Possibility]) :- (X==P;X==0), checkPossibility(P,Possibility), !.
 
 
-getCase(COL, LINE, CONTENT) :- col(COL,X), getLineInCol(LINE,X,1,CONTENT).
+getCase(COL, LINE, CONTENT) :- col(COL,X), getLineInCol(LINE,X,1,CONTENT), !.
 
-getLineInCol(_,[],_,_) :- false.
-getLineInCol(LINE,[A|X],INCR,CONTENT) :- (INCR==LINE, CONTENT=A); INCR1 is INCR+1, getLineInCol(LINE,X,INCR1,CONTENT).
+getLineInCol(_,[],_,_) :- false, !.
+getLineInCol(LINE,[A|X],INCR,CONTENT) :- (INCR==LINE, CONTENT=A); INCR1 is INCR+1, getLineInCol(LINE,X,INCR1,CONTENT), !.
