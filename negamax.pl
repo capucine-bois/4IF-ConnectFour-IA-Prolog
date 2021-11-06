@@ -27,10 +27,10 @@ negamax(H, DEPTH, Pmax, P, SCORE, BestCol) :-
                               getGameBoard(GB),
                               forEachChild(H, 0, GB, DEPTH, Pmax, P, SCOREinit, SCOREfinal, 1, BestColFinal),
                               SCORE = SCOREfinal,
-                              BestCol = BestColFinal.
+                              BestCol = BestColFinal, !.
 
 
-forEachChild(_, _, [], _, _, _, SCORE, SCOREfinal, BestCol, BestColFinal) :- SCOREfinal = SCORE, BestColFinal = BestCol.
+forEachChild(_, _, [], _, _, _, SCORE, SCOREfinal, BestCol, BestColFinal) :- SCOREfinal = SCORE, BestColFinal = BestCol, !.
 forEachChild(H, COL, [_|GB], DEPTH, Pmax, P, SCORE, SCOREfinal, BestCol, BestColFinal) :-
                     COL1 is COL+1, not(isColFull(COL1)),
                     playInCol(COL1, P),
@@ -39,8 +39,8 @@ forEachChild(H, COL, [_|GB], DEPTH, Pmax, P, SCORE, SCOREfinal, BestCol, BestCol
                     cancelPlayInCol(COL1),
                     SCOREnega is (-SCOREtmp),
                     (((SCOREnega < SCORE; SCOREnega==SCORE),SCOREnext = SCORE, BestColNext = BestCol); SCOREnext = SCOREnega, BestColNext = COL1),
-                    forEachChild(H, COL1, GB, DEPTH, Pmax, P, SCOREnext, SCOREfinal, BestColNext, BestColFinal).
+                    forEachChild(H, COL1, GB, DEPTH, Pmax, P, SCOREnext, SCOREfinal, BestColNext, BestColFinal), !.
 
 forEachChild(H, COL, [_|GB], DEPTH, Pmax, P, SCORE, SCOREfinal, BestCol, BestColFinal) :-
                     COL1 is COL+1, isColFull(COL1),
-                    forEachChild(H, COL1, GB, DEPTH, Pmax, P, SCORE, SCOREfinal, BestCol, BestColFinal).
+                    forEachChild(H, COL1, GB, DEPTH, Pmax, P, SCORE, SCOREfinal, BestCol, BestColFinal), !.

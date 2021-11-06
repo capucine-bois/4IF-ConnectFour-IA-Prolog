@@ -26,10 +26,10 @@ alphabeta(H, ALPHA, BETA, DEPTH, Pmax, P, SCORE, BestCol) :-
                               getGameBoard(GB),
                               forEachChild(H, ALPHA, BETA, 0, GB, DEPTH, Pmax, P, SCOREfinal, 1, BestColFinal),
                               SCORE is SCOREfinal,
-                              BestCol = BestColFinal.
+                              BestCol = BestColFinal, !.
 
 
-forEachChild(_, ALPHA, _, _, [], _, _, _, SCOREfinal, BestCol, BestColFinal) :- SCOREfinal = ALPHA, BestColFinal = BestCol.
+forEachChild(_, ALPHA, _, _, [], _, _, _, SCOREfinal, BestCol, BestColFinal) :- SCOREfinal = ALPHA, BestColFinal = BestCol, !.
 forEachChild(H, ALPHA, BETA, COL, [_|GB], DEPTH, Pmax, P, SCOREfinal, BestCol, BestColFinal) :-
                     COL1 is COL+1, not(isColFull(COL1)),
                     playInCol(COL1, P),
@@ -49,8 +49,8 @@ forEachChild(H, ALPHA, BETA, COL, [_|GB], DEPTH, Pmax, P, SCOREfinal, BestCol, B
                           (SCOREfinal = ALPHAnew, BestColFinal = BestColNext)
                         )
                       )
-                    ).
+                    ), !.
 
 forEachChild(H, ALPHA, BETA, COL, [_|GB], DEPTH, Pmax, P, SCOREfinal, BestCol, BestColFinal) :-
                     COL1 is COL+1, isColFull(COL1),
-                    forEachChild(H, ALPHA, BETA, COL1, GB, DEPTH, Pmax, P, SCOREfinal, BestCol, BestColFinal).
+                    forEachChild(H, ALPHA, BETA, COL1, GB, DEPTH, Pmax, P, SCOREfinal, BestCol, BestColFinal), !.
