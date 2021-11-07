@@ -2,11 +2,20 @@
   heuristiqueGrilleDynamique/3
 ]).
 
-:- use_module(puissance4).
+%:- use_module(puissance4).
+
+
+% cette heuristique nommée "grille dynamique" est basée sur l heuristique "grille"
+% la différence ici est l absence de la grille constante qui est présente sur l heuristique "grille"
+% ici cette grille est dite dynamique car en fonction de l etat du jeu actuel, on calcule pour chaque case où il y a un jeton le nombre de possibilités de gagner en prenant en compte les potentiels jetons adverses présents qui peuvent réduire le nombre de possibilités
+% ceci correspond en fait à une mise à jour à chaque état du jeu de la grille présentée dans l heuristique "grille"
+% sinon le principe d addition et soustraction au score final est excatement le meme que pour l heuristique "grille"
 
 heuristiqueGrilleDynamique(SCOREFinal,GB,P) :-
   calculColonne(1,GB,P,0,SOMMEScore),
   SCOREFinal is SOMMEScore + 500, !.
+
+
 
 calculColonne(_,[],_,SommeColonnes,SommeScore) :-
   SommeScore = SommeColonnes, !.
@@ -17,22 +26,26 @@ calculColonne(COL,[X|GB],P,ScoreInit,SommeScore) :-
   calculColonne(COL1,GB,P,ScoreCol,SommeScore), !.
 
 
-
 calculCase(_,_,[],_,ScoreInit,SommeScore) :-
   SommeScore = ScoreInit, !.
 
-
 calculCase(LINE,COL,[Case|X],P,ScoreInit,SommeScore) :-
-  computeTableValue(COL,LINE,P,CaseTab),
-  ((Case == P, SommeCaseTemp is ScoreInit + CaseTab);
-  (Case \== 0, SommeCaseTemp is ScoreInit - CaseTab);
+  ((Case == P, computeTableValue(COL,LINE,P,CaseTab), SommeCaseTemp is ScoreInit + CaseTab);
+  (Case \== 0, changePlayer(P,P1), computeTableValue(COL,LINE,P1,CaseTab), SommeCaseTemp is ScoreInit - CaseTab);
   (Case == 0), SommeCaseTemp is ScoreInit),
   LINE1 is LINE+1,
   calculCase(LINE1,COL,X,P,SommeCaseTemp,SommeScore), !.
 
 
+% on calcule ici pour une case donnée (avec une ligne et une colonne passées en paramètres) la valeur qu il devrait y avoir dans la grille pour l état actuel
+% on doit donc regarder chaque possibilité de gagner pour une case en vérifiant s il est encore possible pour cette case de former une ligne de 4 jetons identiques au jeton de cette case, pour chaque direction
+% on renvoie alors le nombre de possibilités de gagner avec cette case selon l état actuel du jeu
+
+% on va dans un premier temps regarder pour la case mentionée quelles sont les possibilités pour avoir 3 cases qui la suivent pour chaque direction (sans prendre en compte les jetons au début)
+% si on voit que la case ne permet pas d avoir 3 cases qui la suivent dans une direction, on associe alors à cette possibilité un jeton adverse pour que cette possibilité soit évoluée comme impossible par la suite
+
 computeTableValue(COL,LINE,P,VALUE) :-
-        ((P==1, P1 = 2); P1 = 1),
+        changePlayer(P,P1),
 
         % colonne dessus
         ((LINE10 is LINE, LINE11 is LINE-1, LINE12 is LINE-2, LINE13 is LINE-3,
@@ -110,6 +123,34 @@ computeTableValue(COL,LINE,P,VALUE) :-
         Possibility12 = [C121,C122,C123,C124]);
         Possibility12 = [P1]),
 
+        % diagonale mi dessus droite
+        ((COL130 is COL-1, COL131 is COL, COL132 is COL+1, COL133 is COL+2,
+        LINE130 is LINE+1, LINE131 is LINE, LINE132 is LINE-1, LINE133 is LINE-2,
+        getCase(COL130,LINE130,C131), getCase(COL131,LINE131,C132), getCase(COL132,LINE132,C133), getCase(COL133,LINE133,C134),
+        Possibility13 = [C131,C132,C133,C134]);
+        Possibility13 = [P1]),
+
+        % diagonale mi dessus gauche
+        ((COL140 is COL+1, COL141 is COL, COL142 is COL-1, COL143 is COL-2,
+        LINE140 is LINE+1, LINE141 is LINE, LINE142 is LINE-1, LINE143 is LINE-2,
+        getCase(COL140,LINE140,C141), getCase(COL141,LINE141,C142), getCase(COL142,LINE142,C143), getCase(COL143,LINE143,C144),
+        Possibility14 = [C141,C142,C143,C144]);
+        Possibility14 = [P1]),
+
+        % diagonale mi dessous droite
+        ((COL150 is COL-1, COL151 is COL, COL152 is COL+1, COL153 is COL+2,
+        LINE150 is LINE-1, LINE151 is LINE, LINE152 is LINE+1, LINE153 is LINE+2,
+        getCase(COL150,LINE150,C151), getCase(COL151,LINE151,C152), getCase(COL152,LINE152,C153), getCase(COL153,LINE153,C154),
+        Possibility15 = [C151,C152,C153,C154]);
+        Possibility15 = [P1]),
+
+        % diagonale mi dessous gauche
+        ((COL160 is COL+1, COL161 is COL, COL162 is COL-1, COL163 is COL-2,
+        LINE160 is LINE-1, LINE161 is LINE, LINE162 is LINE+1, LINE163 is LINE+2,
+        getCase(COL160,LINE160,C161), getCase(COL161,LINE161,C162), getCase(COL162,LINE162,C163), getCase(COL163,LINE163,C164),
+        Possibility16 = [C161,C162,C163,C164]);
+        Possibility16 = [P1]),
+
         Possibilities = [Possibility1,
                          Possibility2,
                          Possibility3,
@@ -121,10 +162,17 @@ computeTableValue(COL,LINE,P,VALUE) :-
                          Possibility9,
                          Possibility10,
                          Possibility11,
-                         Possibility12],
+                         Possibility12,
+                         Possibility13,
+                         Possibility14,
+                         Possibility15,
+                         Possibility16],
 
         checkPlayerOrFree(P, Possibilities, 0, VALUE), !.
 
+
+% on boucle ensuite ici sur chaque possibilité identifiée pour regarder si les cases des ces possibilités sont inocupées ou égales au jeton du joueur en question
+% on ajoute 1 pour chaque possibilité validée
 
 checkPlayerOrFree(_,[],InitValue,VALUE) :- VALUE = InitValue, !.
 checkPlayerOrFree(P, [X|Possibilities], InitValue, VALUE) :- ((checkPossibility(P,X),VALUEtmp is InitValue + 1); VALUEtmp = InitValue), checkPlayerOrFree(P,Possibilities,VALUEtmp,VALUE), !.
@@ -132,6 +180,9 @@ checkPlayerOrFree(P, [X|Possibilities], InitValue, VALUE) :- ((checkPossibility(
 checkPossibility(_,[]).
 checkPossibility(P,[X|Possibility]) :- (X==P;X==0), checkPossibility(P,Possibility), !.
 
+
+
+% on rédupère ici le contenu d une case donnée
 
 getCase(COL, LINE, CONTENT) :- col(COL,X), getLineInCol(LINE,X,1,CONTENT), !.
 

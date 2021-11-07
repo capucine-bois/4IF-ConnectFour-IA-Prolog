@@ -6,7 +6,12 @@
 :- use_module(heuristiqueGrille).
 :- use_module(heuristiqueGrilleDynamique).
 
+% -----------------------------------------------------------------------------------------
 % algorithme alphabeta (avec simplification negaMax)
+% -----------------------------------------------------------------------------------------
+% cet algorithme est très similaire avec celui de negamax
+% les commentaires sur le code de negamax peuvent donc être reportés sur ce code
+% -----------------------------------------------------------------------------------------
 
 alphabeta(_, _, _, DEPTH, Pmax, P, SCORE, _) :- checkWinning(Pmax), ((Pmax\==P,SCORE is (-1000*(DEPTH+1))); (maxDepth(DEPTHmax), SCORE is (DEPTHmax+1-DEPTH))), !.
 
@@ -28,6 +33,10 @@ alphabeta(H, ALPHA, BETA, DEPTH, Pmax, P, SCORE, BestCol) :-
                               SCORE is SCOREfinal,
                               BestCol = BestColFinal, !.
 
+
+
+% la seule différence avec negamax se situe ci dessous dans le traitement des scores renvoyés à chaque étape
+% ici si l on voit que le parcours de noeuds enfants ne changera pas le score renvoyé vers la profondeur précédente, on ne va pas parcourir ces noeuds inutilement et on réalise une coupure, ce qui nous permet notamment de parcourir plus de profondeurs et d anticiper ainsi plus de coups et avoir une meilleure IA
 
 forEachChild(_, ALPHA, _, _, [], _, _, _, SCOREfinal, BestCol, BestColFinal) :- SCOREfinal = ALPHA, BestColFinal = BestCol, !.
 forEachChild(H, ALPHA, BETA, COL, [_|GB], DEPTH, Pmax, P, SCOREfinal, BestCol, BestColFinal) :-
