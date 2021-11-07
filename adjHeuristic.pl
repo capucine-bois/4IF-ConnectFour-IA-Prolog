@@ -3,55 +3,61 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- module(adjHeuristic, [
-    heuristicAdj/3
+    heuristicAdj/2
 ]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%% MAIN FUNCTION TO CALL %%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % IN Parameter :
-% GB : GAMEBOARD, JUST BEFORE PLAYING THE COIN, <=> the actual configuration
-% P : player 1 or 2
+% GB : GAMEBOARD, JUST BEFORE PLAYING THE COIN, <=> the current configuration
 % OUT Parameter :
 % NUMCOL : THE NUMBER OF THE COLUMN WHERE THE PLAYER SHOULD PLAY
-heuristicAdj(GB, NUMCOL,P):-((not(isColFull(1,GB)), heuristicAdjOneColumn(GB,1,SCORE1,P)); SCORE1 is 0),
-                          ((not(isColFull(2,GB)), heuristicAdjOneColumn(GB,2,SCORE2,P)); SCORE2 is 0),
+heuristicAdj(GB, NUMCOL):-((not(isColFull(1,GB)), heuristicAdjOneColumn(GB,1,SCORE1)); SCORE1 is 0),
+                          ((not(isColFull(2,GB)), heuristicAdjOneColumn(GB,2,SCORE2)); SCORE2 is 0),
                           ((SCORE1>SCORE2, INTM1 is 1, CURRENT is SCORE1);(SCORE2>=SCORE1, INTM1 is 2, CURRENT is SCORE2)),
-                          ((not(isColFull(3,GB)), heuristicAdjOneColumn(GB,3,SCORE3,P)); SCORE3 is 0),
+                          ((not(isColFull(3,GB)), heuristicAdjOneColumn(GB,3,SCORE3)); SCORE3 is 0),
                           ((SCORE3>CURRENT, INTM2 is 3, CURRENT2 is SCORE3);(CURRENT>=SCORE3, INTM2 is INTM1, CURRENT2 is CURRENT)),
-                          ((not(isColFull(4,GB)), heuristicAdjOneColumn(GB,4,SCORE4,P)); SCORE4 is 0),
+                          ((not(isColFull(4,GB)), heuristicAdjOneColumn(GB,4,SCORE4)); SCORE4 is 0),
                           ((SCORE4>CURRENT2, INTM3 is 4, CURRENT3 is SCORE4);(CURRENT2>=SCORE4, INTM3 is INTM2, CURRENT3 is CURRENT2)),
-                          ((not(isColFull(5,GB)), heuristicAdjOneColumn(GB,5,SCORE5,P)); SCORE5 is 0),
+                          ((not(isColFull(5,GB)), heuristicAdjOneColumn(GB,5,SCORE5)); SCORE5 is 0),
                           ((SCORE5>CURRENT3, INTM4 is 5, CURRENT4 is SCORE5);(CURRENT3>=SCORE5, INTM4 is INTM3, CURRENT4 is CURRENT3)),
-                          ((not(isColFull(6,GB)), heuristicAdjOneColumn(GB,6,SCORE6,P)); SCORE6 is 0),
+                          ((not(isColFull(6,GB)), heuristicAdjOneColumn(GB,6,SCORE6)); SCORE6 is 0),
                           ((SCORE6>CURRENT4, INTM5 is 6, CURRENT5 is SCORE6);(CURRENT4>=SCORE6, INTM5 is INTM4, CURRENT5 is CURRENT4)),
-                          ((not(isColFull(7,GB)), heuristicAdjOneColumn(GB,7,SCORE7,P)); SCORE7 is 0),
+                          ((not(isColFull(7,GB)), heuristicAdjOneColumn(GB,7,SCORE7)); SCORE7 is 0),
                           ((SCORE7>CURRENT5, INTM6 is 7);(CURRENT5>=SCORE7, INTM6 is INTM5)),
                           NUMCOL is INTM6,!.
 
 
+% to verify if the column is full <=> we can't play in it anymore
 noZeroFound([]).
 noZeroFound([A|X]) :- A\==0, noZeroFound(X), !.
 isColFull(NUMCOL, GB):- nth1(NUMCOL,GB,LINE), noZeroFound(LINE), !.
-heuristicAdjOneColumn(GB,NUMCOL,SCORE,P):- biggestScoreofAllLines(GB,NUMCOL,SCORE,P), !.
-%% get All the scores of each Line( Diag A,Diag D, HORIZ, VERTIC) and keep the max
-biggestScoreofAllLines(GB,NUMCOL,SCORE,P):- vScore(GB,NUMCOL,SCORE1, SCORE11,P),
-                                          hScore(GB,NUMCOL, SCORE2, SCORE22,P),
-                                          daScore(GB,NUMCOL,SCORE3, SCORE33,P),
-                                          ddScore(GB,NUMCOL,SCORE4, SCORE44,P),
+heuristicAdjOneColumn(GB,NUMCOL,SCORE):- biggestScoreofAllLines(GB,NUMCOL,SCORE), !.
+
+%% get All the scores of each Line( Diag A,Diag D, HORIZ, VERTIC) and add them
+biggestScoreofAllLines(GB,NUMCOL,SCORE):- vScore(GB,NUMCOL,SCORE1, SCORE11),
+                                          hScore(GB,NUMCOL, SCORE2, SCORE22),
+                                          daScore(GB,NUMCOL,SCORE3, SCORE33),
+                                          ddScore(GB,NUMCOL,SCORE4, SCORE44),
                                           (INTM1 is SCORE1+SCORE2+SCORE3+SCORE4),
                                           (INTM2 is SCORE11+SCORE22+SCORE33+SCORE44),
                                           SCORE is INTM1+INTM2,!.
 
 
-vScore(GB,NUMCOL,SCORE1,SCORE2,P):-getVLine(GB,NUMCOL,LINE), scoreLINE(LINE, SCORE1, SCORE2,P), !.
-hScore(GB, NUMCOL,SCORE1, SCORE2,P):-getHoriz(GB,NUMCOL,LINE), scoreLINE(LINE,SCORE1, SCORE2,P), !.
-daScore(GB,NUMCOL,SCORE1, SCORE2,P):- getAscDiag(GB,NUMCOL,LINE), scoreLINE(LINE,SCORE1, SCORE2,P), !.
-ddScore(GB,NUMCOL,SCORE1, SCORE2,P):- getDescDiag(GB,NUMCOL,LINE), scoreLINE(LINE,SCORE1, SCORE2,P), !.
+vScore(GB,NUMCOL,SCORE1,SCORE2):-getVLine(GB,NUMCOL,LINE), scoreLINE(LINE, SCORE1, SCORE2), !.
+hScore(GB, NUMCOL,SCORE1, SCORE2):-getHoriz(GB,NUMCOL,LINE), scoreLINE(LINE,SCORE1, SCORE2), !.
+daScore(GB,NUMCOL,SCORE1, SCORE2):- getAscDiag(GB,NUMCOL,LINE), scoreLINE(LINE,SCORE1, SCORE2), !.
+ddScore(GB,NUMCOL,SCORE1, SCORE2):- getDescDiag(GB,NUMCOL,LINE), scoreLINE(LINE,SCORE1, SCORE2), !.
 
 
 %get The score of a line (consecutive occurences)
-scoreLINE(LINE,SCOREONE, SCORETWO, _):- (
+%first we check if there is enough space to be able to align 4 tokens
+% if there is, we get the adjacent tokens, and we weight them : score of 1 for 1 token, score of 5 for 2 tokens, score of 15 for 3 tokens, score of 1000 for 4 tokens
+% if not, the score is ZERO
+% SCOREONE and SCORETWO are the respectively scores for the player 1 and the player 2
+
+scoreLINE(LINE,SCOREONE, SCORETWO):- (
                           (isEnoughFor4Coins(LINE, S1,1), S1>=4,(
                             countSuccessiveOnes(LINE,COUNT1),
                             ((COUNT1>=4, INTM1 is 10000);
@@ -74,7 +80,7 @@ scoreLINE(LINE,SCOREONE, SCORETWO, _):- (
                         SCOREONE is INTM1,
                         SCORETWO is INTM2, !.
 
-
+% to check if there is enough space to align 4 tokens (or more)
 isEnoughFor4Coins(LINE, SCORE, P) :-  afterPlayerCoin(LINE, LINE1), ((P==1,countFreeForOne(LINE1, FREE1)); (P==2, countFreeForTwo(LINE1, FREE1))) ,
                                       reverse(LINE, REVLINE),
                                       afterPlayerCoin(REVLINE, LINE2), ((P==1,countFreeForOne(LINE2, FREE2)); (P==2, countFreeForTwo(LINE2, FREE2))),
@@ -99,10 +105,12 @@ countSuccessiveTwos(LINE, SCORE):- afterPlayerCoin(LINE, LINE1), countTwos(LINE1
                                    afterPlayerCoin(REVLINE, LINE2), countTwos(LINE2, SCORE2),
                                    SCORE is SCORE1+SCORE2+1,!. % +1 for the playerCoin
 
-
+% get the line after the player token (the player token is written as a '3' in the gameboard)
 afterPlayerCoin([3|T], LINE1):- LINE1=T, !.
 afterPlayerCoin([X|T],LINE1) :- X\==3, afterPlayerCoin(T,TEMP), LINE1 = TEMP,!.
 
+
+%get the line after an empty box (written as zero in the gameboard)
 afterFreePlace([], LINE1):- LINE1=[], !.
 afterFreePlace([0|T], LINE1):- LINE1=T, !.
 afterFreePlace([_|T],LINE1) :- afterFreePlace(T,TEMP), LINE1 = TEMP,!.
@@ -118,41 +126,52 @@ countOnes([],N):- N=0, !.
 countOnes([1|T],N) :- countOnes(T,N1), N is N1 + 1, !.
 countOnes([_|_],N) :- N=0, !.
 
+%count empty boxes after and before a box '1'
 countFreeForOne([],N):- N=0, !.
 countFreeForOne([2|_],N) :- N=0, !.
 countFreeForOne([1|T],N) :- countFreeForOne(T,N1), N is N1, !.
 countFreeForOne([_|T],N) :- countFreeForOne(T,N1), N is N1 +1, !.
 
+%count empty boxes after and before a box '2'
 countFreeForTwo([],N):- N=0, !.
 countFreeForTwo([1|_],N) :- N=0, !.
 countFreeForTwo([2|T],N) :- countFreeForTwo(T,N1), N is N1, !.
 countFreeForTwo([_|T],N) :- countFreeForTwo(T,N1), N is N1 +1, !.
 
+%count successive ones including the player token
 countOnes2([_|_],N) :- N=0, !.
 countOnes2([],N):- N=0, !.
 countOnes2([2|_],N) :- N=0, !.
 countOnes2([3|T],N) :-  countOnes2(T,N1), N is N1 +1, !.
 countOnes2([1|T],N) :- countOnes2(T,N1), N is N1 +1, !.
 
+%count successive twos including the player token
 countTwos2([_|_],N) :- N=0, !.
 countTwos2([],N):- N=0, !.
 countTwos2([1|_],N) :- N=0, !.
 countTwos2([3|T],N) :-  countTwos2(T,N1), N is N1 +1, !.
 countTwos2([2|T],N) :- countTwos2(T,N1), N is N1 +1, !.
 
-%heuristique dadjacence
+%get an element in a list of lists with a given column and a given row
 getElem2D(GB,INDEXCOL,INDEXLINE, ELEM):-nth1(INDEXCOL,GB,X), nth1(INDEXLINE,X,ELEM), !.
 
-
+%get the index of the first element in a column
 firstElem([Element|_], Element, 0):- !.
 firstElem([_|Tail], Element, Index):-  firstElem(Tail, Element, Index1),  !,  Index is Index1 +1 , !.
-
-
-%COL est la colonne et non le n° de colonne
 getIndexFirstElem(GB, NUMCOL, INDEX):-    nth1(NUMCOL,GB,COL), ((firstElem(COL, 2, INDEX2),firstElem(COL, 1, INDEX1), I is min(INDEX1,INDEX2), INDEX is I);
                                     ((firstElem(COL, 1, INDEX1), I is INDEX1, INDEX is I);(firstElem(COL, 2, INDEX2),  I is INDEX2, INDEX is I))), !.
 
 
+%replace an element by an other in a list of lists, used to put the player token '3' in the current line at the first empty box
+%from : https://stackoverflow.com/questions/26719774/replacing-elements-in-list-of-lists-prolog
+replace( L , X , Y , Z , R ) :-
+  append(RowPfx,[Row|RowSfx],L),     % decompose the list-of-lists into a prefix, a list and a suffix
+  length(RowPfx,X) ,                 % check the prefix length: do we have the desired list?
+  append(ColPfx,[_|ColSfx],Row) ,    % decompose that row into a prefix, a column and a suffix
+  length(ColPfx,Y) ,                 % check the prefix length: do we have the desired column?
+  append(ColPfx,[Z|ColSfx],RowNew) , % if so, replace the column with its new value
+  append(RowPfx,[RowNew|RowSfx],R),  % and assemble the transformed list-of-lists
+  !.
 
 %%%%%%%%%%%%%%%%%%%%%
 %%  VERTICAL LINE  %%
@@ -237,15 +256,3 @@ getDiag2(GB,LENGTH, _, _, DIAG):- LENGTH==(-1), getElem2D(GB,1,2, ELEM1), getEle
 % 6 éléments sur diagonale
 getDiag2(GB,LENGTH, _, _, DIAG):- LENGTH==1,  getElem2D(GB,2,1, ELEM1), getElem2D(GB,3,2, ELEM2), getElem2D(GB,4,3, ELEM3), getElem2D(GB,5,4, ELEM4), getElem2D(GB,6,5, ELEM5), getElem2D(GB,7,6, ELEM6),  DIAG=[ELEM1,ELEM2,ELEM3, ELEM4, ELEM5, ELEM6], !.
 getDiag2(GB,LENGTH, _, _, DIAG):- LENGTH==0,  getElem2D(GB,1,1, ELEM1), getElem2D(GB,2,2, ELEM2), getElem2D(GB,3,3, ELEM3), getElem2D(GB,4,4, ELEM4), getElem2D(GB,5,5, ELEM5), getElem2D(GB,6,6, ELEM6),  DIAG=[ELEM1,ELEM2,ELEM3, ELEM4, ELEM5, ELEM6], !.
-
-
-
-%from : https://stackoverflow.com/questions/26719774/replacing-elements-in-list-of-lists-prolog
-replace( L , X , Y , Z , R ) :-
-  append(RowPfx,[Row|RowSfx],L),     % decompose the list-of-lists into a prefix, a list and a suffix
-  length(RowPfx,X) ,                 % check the prefix length: do we have the desired list?
-  append(ColPfx,[_|ColSfx],Row) ,    % decompose that row into a prefix, a column and a suffix
-  length(ColPfx,Y) ,                 % check the prefix length: do we have the desired column?
-  append(ColPfx,[Z|ColSfx],RowNew) , % if so, replace the column with its new value
-  append(RowPfx,[RowNew|RowSfx],R),  % and assemble the transformed list-of-lists
-  !.

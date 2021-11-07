@@ -198,7 +198,7 @@ playIA(IA, DEPTH, P, BestCol) :- IA == 3, assert(maxDepth(DEPTH)), negamax(1, DE
 playIA(IA, DEPTH, P, BestCol) :- IA == 4, assert(maxDepth(DEPTH)), alphabeta(1, (-inf), (inf), DEPTH, P, P, _, BestCol), retract(maxDepth(DEPTH)), !.
 playIA(IA, DEPTH, P, BestCol) :- IA == 5, assert(maxDepth(DEPTH)), negamax(2, DEPTH, P, P, _, BestCol), retract(maxDepth(DEPTH)), !.
 playIA(IA, DEPTH, P, BestCol) :- IA == 6, assert(maxDepth(DEPTH)), alphabeta(2, (-inf), (inf), DEPTH, P, P, _, BestCol), retract(maxDepth(DEPTH)), !.
-playIA(IA, _, P, BestCol) :- IA == 7, getGameBoard(GB), heuristicAdj(GB, BestCol,P), !.
+playIA(IA, _, _, BestCol) :- IA == 7, getGameBoard(GB), heuristicAdj(GB, BestCol), !.
 
 
 % Le joueur ou l IA a joué et on continue le jeu ou on arrête le jeu en cas de victoire ou d égalité
@@ -237,7 +237,7 @@ choice(FinalChoice, IA1, Depth1, IA2, Depth2) :- writeln('CHOIX 1 : 2 joueurs hu
 % vérifier que le choix du mode de jeu soit correct
 
 checkMode(Num, C) :- (((Num == 1 ; Num == 2 ; Num == 3), C = Num);
-                     (writeln("Vous devez choisir entres les choix 1, 2 ou 3."), write('Tapez votre choix : '), read(Num1), checkMode(Num1, C))), !.
+                     (writeln("Vous devez choisir entre les choix 1, 2 ou 3."), write('Tapez votre choix : '), read(Num1), checkMode(Num1, C))), !.
 
 
 % choisir qui doit jouer en premier dans le cas où le mode sélectionne est humain contre IA
