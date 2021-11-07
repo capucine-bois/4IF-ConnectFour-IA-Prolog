@@ -3,7 +3,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- module(adjHeuristic, [
-    heuristicAdj/2
+    heuristicAdj/3
 ]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -13,18 +13,18 @@
 % GB : GAMEBOARD, JUST BEFORE PLAYING THE COIN, <=> the current configuration
 % OUT Parameter :
 % NUMCOL : THE NUMBER OF THE COLUMN WHERE THE PLAYER SHOULD PLAY
-heuristicAdj(GB, NUMCOL):-((not(isColFull(1,GB)), heuristicAdjOneColumn(GB,1,SCORE1)); SCORE1 is 0),
-                          ((not(isColFull(2,GB)), heuristicAdjOneColumn(GB,2,SCORE2)); SCORE2 is 0),
+heuristicAdj(GB, NUMCOL,P):-((not(isColFull(1,GB)), heuristicAdjOneColumn(GB,1,SCORE1,P)); SCORE1 is 0),
+                          ((not(isColFull(2,GB)), heuristicAdjOneColumn(GB,2,SCORE2,P)); SCORE2 is 0),
                           ((SCORE1>SCORE2, INTM1 is 1, CURRENT is SCORE1);(SCORE2>=SCORE1, INTM1 is 2, CURRENT is SCORE2)),
-                          ((not(isColFull(3,GB)), heuristicAdjOneColumn(GB,3,SCORE3)); SCORE3 is 0),
+                          ((not(isColFull(3,GB)), heuristicAdjOneColumn(GB,3,SCORE3,P)); SCORE3 is 0),
                           ((SCORE3>CURRENT, INTM2 is 3, CURRENT2 is SCORE3);(CURRENT>=SCORE3, INTM2 is INTM1, CURRENT2 is CURRENT)),
-                          ((not(isColFull(4,GB)), heuristicAdjOneColumn(GB,4,SCORE4)); SCORE4 is 0),
+                          ((not(isColFull(4,GB)), heuristicAdjOneColumn(GB,4,SCORE4,P)); SCORE4 is 0),
                           ((SCORE4>CURRENT2, INTM3 is 4, CURRENT3 is SCORE4);(CURRENT2>=SCORE4, INTM3 is INTM2, CURRENT3 is CURRENT2)),
-                          ((not(isColFull(5,GB)), heuristicAdjOneColumn(GB,5,SCORE5)); SCORE5 is 0),
+                          ((not(isColFull(5,GB)), heuristicAdjOneColumn(GB,5,SCORE5,P)); SCORE5 is 0),
                           ((SCORE5>CURRENT3, INTM4 is 5, CURRENT4 is SCORE5);(CURRENT3>=SCORE5, INTM4 is INTM3, CURRENT4 is CURRENT3)),
-                          ((not(isColFull(6,GB)), heuristicAdjOneColumn(GB,6,SCORE6)); SCORE6 is 0),
+                          ((not(isColFull(6,GB)), heuristicAdjOneColumn(GB,6,SCORE6,P)); SCORE6 is 0),
                           ((SCORE6>CURRENT4, INTM5 is 6, CURRENT5 is SCORE6);(CURRENT4>=SCORE6, INTM5 is INTM4, CURRENT5 is CURRENT4)),
-                          ((not(isColFull(7,GB)), heuristicAdjOneColumn(GB,7,SCORE7)); SCORE7 is 0),
+                          ((not(isColFull(7,GB)), heuristicAdjOneColumn(GB,7,SCORE7,P)); SCORE7 is 0),
                           ((SCORE7>CURRENT5, INTM6 is 7);(CURRENT5>=SCORE7, INTM6 is INTM5)),
                           NUMCOL is INTM6,!.
 
@@ -33,22 +33,22 @@ heuristicAdj(GB, NUMCOL):-((not(isColFull(1,GB)), heuristicAdjOneColumn(GB,1,SCO
 noZeroFound([]).
 noZeroFound([A|X]) :- A\==0, noZeroFound(X), !.
 isColFull(NUMCOL, GB):- nth1(NUMCOL,GB,LINE), noZeroFound(LINE), !.
-heuristicAdjOneColumn(GB,NUMCOL,SCORE):- biggestScoreofAllLines(GB,NUMCOL,SCORE), !.
+heuristicAdjOneColumn(GB,NUMCOL,SCORE,P):- biggestScoreofAllLines(GB,NUMCOL,SCORE,P), !.
 
 %% get All the scores of each Line( Diag A,Diag D, HORIZ, VERTIC) and add them
-biggestScoreofAllLines(GB,NUMCOL,SCORE):- vScore(GB,NUMCOL,SCORE1, SCORE11),
-                                          hScore(GB,NUMCOL, SCORE2, SCORE22),
-                                          daScore(GB,NUMCOL,SCORE3, SCORE33),
-                                          ddScore(GB,NUMCOL,SCORE4, SCORE44),
+biggestScoreofAllLines(GB,NUMCOL,SCORE,P):- vScore(GB,NUMCOL,SCORE1, SCORE11,P),
+                                          hScore(GB,NUMCOL, SCORE2, SCORE22,P),
+                                          daScore(GB,NUMCOL,SCORE3, SCORE33,P),
+                                          ddScore(GB,NUMCOL,SCORE4, SCORE44,P),
                                           (INTM1 is SCORE1+SCORE2+SCORE3+SCORE4),
                                           (INTM2 is SCORE11+SCORE22+SCORE33+SCORE44),
                                           SCORE is INTM1+INTM2,!.
 
 
-vScore(GB,NUMCOL,SCORE1,SCORE2):-getVLine(GB,NUMCOL,LINE), scoreLINE(LINE, SCORE1, SCORE2), !.
-hScore(GB, NUMCOL,SCORE1, SCORE2):-getHoriz(GB,NUMCOL,LINE), scoreLINE(LINE,SCORE1, SCORE2), !.
-daScore(GB,NUMCOL,SCORE1, SCORE2):- getAscDiag(GB,NUMCOL,LINE), scoreLINE(LINE,SCORE1, SCORE2), !.
-ddScore(GB,NUMCOL,SCORE1, SCORE2):- getDescDiag(GB,NUMCOL,LINE), scoreLINE(LINE,SCORE1, SCORE2), !.
+vScore(GB,NUMCOL,SCORE1,SCORE2,P):-getVLine(GB,NUMCOL,LINE), scoreLINE(LINE, SCORE1, SCORE2,P), !.
+hScore(GB, NUMCOL,SCORE1, SCORE2,P):-getHoriz(GB,NUMCOL,LINE), scoreLINE(LINE,SCORE1, SCORE2,P), !.
+daScore(GB,NUMCOL,SCORE1, SCORE2,P):- getAscDiag(GB,NUMCOL,LINE), scoreLINE(LINE,SCORE1, SCORE2,P), !.
+ddScore(GB,NUMCOL,SCORE1, SCORE2,P):- getDescDiag(GB,NUMCOL,LINE), scoreLINE(LINE,SCORE1, SCORE2,P), !.
 
 
 %get The score of a line (consecutive occurences)
@@ -57,10 +57,10 @@ ddScore(GB,NUMCOL,SCORE1, SCORE2):- getDescDiag(GB,NUMCOL,LINE), scoreLINE(LINE,
 % if not, the score is ZERO
 % SCOREONE and SCORETWO are the respectively scores for the player 1 and the player 2
 
-scoreLINE(LINE,SCOREONE, SCORETWO):- (
+scoreLINE(LINE,SCOREONE, SCORETWO,P):- (
                           (isEnoughFor4Coins(LINE, S1,1), S1>=4,(
                             countSuccessiveOnes(LINE,COUNT1),
-                            ((COUNT1>=4, INTM1 is 10000);
+                            (((COUNT1>=4, ((P==1,INTM1 is 100000);(P==2, INTM1 is 10000))));
                             (COUNT1==3, INTM1 is 15);
                             (COUNT1==2, INTM1 is 5);
                             (COUNT1==1, INTM1 is COUNT1)
@@ -70,7 +70,7 @@ scoreLINE(LINE,SCOREONE, SCORETWO):- (
                         (
                           (isEnoughFor4Coins(LINE, S2,2), S2>=4,(
                             countSuccessiveTwos(LINE, COUNT2),
-                            ((COUNT2>=4, INTM2 is 10000);
+                            (((COUNT2>=4, ((P==1,INTM2 is 10000);(P==2, INTM2 is 100000))));
                             (COUNT2==3, INTM2 is 15);
                             (COUNT2==2, INTM2 is 5);
                             (COUNT2==1, INTM2 is COUNT2)

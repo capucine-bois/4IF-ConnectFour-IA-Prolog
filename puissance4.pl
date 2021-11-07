@@ -198,7 +198,7 @@ playIA(IA, DEPTH, P, BestCol) :- IA == 3, assert(maxDepth(DEPTH)), negamax(1, DE
 playIA(IA, DEPTH, P, BestCol) :- IA == 4, assert(maxDepth(DEPTH)), alphabeta(1, (-inf), (inf), DEPTH, P, P, _, BestCol), retract(maxDepth(DEPTH)), !.
 playIA(IA, DEPTH, P, BestCol) :- IA == 5, assert(maxDepth(DEPTH)), negamax(2, DEPTH, P, P, _, BestCol), retract(maxDepth(DEPTH)), !.
 playIA(IA, DEPTH, P, BestCol) :- IA == 6, assert(maxDepth(DEPTH)), alphabeta(2, (-inf), (inf), DEPTH, P, P, _, BestCol), retract(maxDepth(DEPTH)), !.
-playIA(IA, _, _, BestCol) :- IA == 7, getGameBoard(GB), heuristicAdj(GB, BestCol), !.
+playIA(IA, _, P, BestCol) :- IA == 7, getGameBoard(GB), heuristicAdj(GB, BestCol,P), !.
 
 
 % Le joueur ou l IA a joué et on continue le jeu ou on arrête le jeu en cas de victoire ou d égalité
