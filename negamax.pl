@@ -23,7 +23,7 @@ negamax(_, DEPTH, Pmax, P, SCORE, _) :- changePlayer(Pmax,P1), checkWinning(P1),
 
 % il peut y avoir une égalité donc on renvoie un score nul
 
-negamax(_, _, Pmax, P, SCORE, _) :- isGameFull, ((Pmax==P,Score is (-50)); SCORE=50), !.
+negamax(_, _, Pmax, P, SCORE, _) :- isGameFull, ((Pmax==P,SCORE is (-50)); SCORE=50), !.
 
 
 % aucun des cas précédents n a été détécté et on atteint la prondeur de recherche maximum alors on renvoie comme score l heuristique associée à l état actuel du jeu : on appelle ici la bonne heuristique passée en paramètre
