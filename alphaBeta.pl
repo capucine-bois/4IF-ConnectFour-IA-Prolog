@@ -17,7 +17,7 @@ alphabeta(_, _, _, DEPTH, Pmax, P, SCORE, _) :- checkWinning(Pmax), ((Pmax\==P,S
 
 alphabeta(_ ,_, _, DEPTH, Pmax, P, SCORE, _) :- changePlayer(Pmax,P1), checkWinning(P1), ((Pmax==P, maxDepth(DEPTHmax), SCORE is (DEPTH-DEPTHmax-1)); SCORE is (1000*(DEPTH+1))), !.
 
-alphabeta(_, _, _, _, _, _, SCORE, _) :- isGameFull, SCORE=0, !.
+alphabeta(_, _, _, _, Pmax, P, SCORE, _) :- isGameFull, ((Pmax==P,SCORE is (-50)); SCORE=50), !.
 
 alphabeta(H, _, _, DEPTH, Pmax, P, SCORE, _) :- DEPTH==0,
                                             (
