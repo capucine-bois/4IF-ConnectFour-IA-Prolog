@@ -10,6 +10,7 @@
 %%%%%% MAIN FUNCTION TO CALL %%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % IN Parameter :
+% P: current player
 % GB : GAMEBOARD, JUST BEFORE PLAYING THE COIN, <=> the current configuration
 % OUT Parameter :
 % NUMCOL : THE NUMBER OF THE COLUMN WHERE THE PLAYER SHOULD PLAY
@@ -29,6 +30,11 @@ heuristicAdj(GB, NUMCOL,P):-((not(isColFull(1,GB)), heuristicAdjOneColumn(GB,1,S
                           NUMCOL is INTM6,!.
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%% GET ALL THE SCORES %%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 % to verify if the column is full <=> we can't play in it anymore
 noZeroFound([]).
 noZeroFound([A|X]) :- A\==0, noZeroFound(X), !.
@@ -37,12 +43,12 @@ heuristicAdjOneColumn(GB,NUMCOL,SCORE,P):- biggestScoreofAllLines(GB,NUMCOL,SCOR
 
 %% get All the scores of each Line( Diag A,Diag D, HORIZ, VERTIC) and add them
 biggestScoreofAllLines(GB,NUMCOL,SCORE,P):- vScore(GB,NUMCOL,SCORE1, SCORE11,P),
-                                          hScore(GB,NUMCOL, SCORE2, SCORE22,P),
-                                          daScore(GB,NUMCOL,SCORE3, SCORE33,P),
-                                          ddScore(GB,NUMCOL,SCORE4, SCORE44,P),
-                                          (INTM1 is SCORE1+SCORE2+SCORE3+SCORE4),
-                                          (INTM2 is SCORE11+SCORE22+SCORE33+SCORE44),
-                                          SCORE is INTM1+INTM2,!.
+                                            hScore(GB,NUMCOL, SCORE2, SCORE22,P),
+                                            daScore(GB,NUMCOL,SCORE3, SCORE33,P),
+                                            ddScore(GB,NUMCOL,SCORE4, SCORE44,P),
+                                            (INTM1 is SCORE1+SCORE2+SCORE3+SCORE4),
+                                            (INTM2 is SCORE11+SCORE22+SCORE33+SCORE44),
+                                            SCORE is INTM1+INTM2,!.
 
 
 vScore(GB,NUMCOL,SCORE1,SCORE2,P):-getVLine(GB,NUMCOL,LINE), scoreLINE(LINE, SCORE1, SCORE2,P), !.
@@ -223,7 +229,6 @@ getDiag1(GB,LENGTH, _, _, DIAG):- LENGTH==9,  getElem2D(GB,3,6, ELEM1), getElem2
 % 6 éléments sur diagonale
 getDiag1(GB,LENGTH, _, _, DIAG):- LENGTH==7,  getElem2D(GB,1,6, ELEM1), getElem2D(GB,2,5, ELEM2), getElem2D(GB,3,4, ELEM3), getElem2D(GB,4,3, ELEM4), getElem2D(GB,5,2, ELEM5), getElem2D(GB,6,1, ELEM6),  DIAG=[ELEM1,ELEM2,ELEM3, ELEM4, ELEM5, ELEM6], !.
 getDiag1(GB,LENGTH, _, _, DIAG):- LENGTH==8,  getElem2D(GB,2,6, ELEM1), getElem2D(GB,3,5, ELEM2), getElem2D(GB,4,4, ELEM3), getElem2D(GB,5,3, ELEM4), getElem2D(GB,6,2, ELEM5), getElem2D(GB,7,1, ELEM6),  DIAG=[ELEM1,ELEM2,ELEM3, ELEM4, ELEM5, ELEM6], !.
-
 
 
 
